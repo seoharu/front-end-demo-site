@@ -1,1 +1,24 @@
-#wsd-02: front-end-demo-site using vue.js
+# [WSD-02]-vue: Front-End Demo Site 개발
+
+## Project setup
+```
+npm install
+```
+
+### Compiles and hot-reloads for development
+```
+npm run serve
+```
+
+### Compiles and minifies for production
+```
+npm run build
+```
+
+### Lints and fixes files
+```
+npm run lint
+```
+
+### Customize configuration
+See [Configuration Reference](https://cli.vuejs.org/config/).
