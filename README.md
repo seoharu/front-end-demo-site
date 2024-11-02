@@ -1,1 +1,1 @@
-# front-end-demo-site
+#wsd-02: front-end-demo-site using vue.js
