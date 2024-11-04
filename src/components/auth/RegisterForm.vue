@@ -41,7 +41,10 @@ import { reactive, ref } from 'vue'
 import FormInput from '@/components/common/FormInput.vue'
 import FormButton from '@/components/common/FormButton.vue'
 import FormCheckbox from '@/components/common/FormCheckbox.vue'
+import { useAuth } from '@/composables/useAuth'
 
+const { register } = useAuth()
+// eslint-disable-next-line no-undef
 const emit = defineEmits<{
   (e: 'toggle-auth'): void
   (e: 'register-success'): void
@@ -65,6 +68,9 @@ const errors = reactive({
 const handleSubmit = async () => {
   try {
     isLoading.value = true
+    errors.email = ''
+    errors.password = ''
+    errors.confirmPassword = ''
 
     // 이메일 검증
     if (!form.email.includes('@')) {
@@ -72,28 +78,19 @@ const handleSubmit = async () => {
       return
     }
 
-    // 비밀번호 확인
-    if (form.password !== form.confirmPassword) {
-      errors.confirmPassword = '비밀번호가 일치하지 않습니다'
-      return
+    const result = await register(form)
+    if (result.success) {
+      emit('register-success')
+    } else {
+      errors.password = result.error
     }
-
-    // 약관 동의 확인
-    if (!form.agreement) {
-      errors.confirmPassword = '이용약관에 동의해주세요'
-      return
-    }
-
-    // TODO: 회원가입 로직 구현
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    emit('register-success')
-
   } catch (error) {
     errors.password = '회원가입에 실패했습니다'
   } finally {
     isLoading.value = false
   }
 }
+
 </script>
 
 <style scoped lang="scss">

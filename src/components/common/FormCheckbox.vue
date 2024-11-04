@@ -26,6 +26,7 @@ defineEmits<{
 </template>
 
 <style scoped lang="scss">
+
 .form-checkbox {
   margin-bottom: 16px;
 }
@@ -43,6 +44,6 @@ defineEmits<{
 .label-text {
   font-size: 14px;
   color: #4b5563;
-}>
+}
 
 </style>

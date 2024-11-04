@@ -35,7 +35,10 @@ import { reactive, ref } from 'vue'
 import FormInput from '@/components/common/FormInput.vue'
 import FormButton from '@/components/common/FormButton.vue'
 import FormCheckbox from '@/components/common/FormCheckbox.vue'
+import { useAuth } from '@/composables/useAuth'
 
+const { login } = useAuth()
+// eslint-disable-next-line no-undef
 const emit = defineEmits<{
   (e: 'toggle-auth'): void
   (e: 'login-success'): void
@@ -57,6 +60,8 @@ const errors = reactive({
 const handleSubmit = async () => {
   try {
     isLoading.value = true
+    errors.email = ''
+    errors.password = ''
 
     // 이메일 검증
     if (!form.email.includes('@')) {
@@ -64,10 +69,12 @@ const handleSubmit = async () => {
       return
     }
 
-    // TODO: 로그인 로직 구현
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    emit('login-success')
-
+    const result = await login(form)
+    if (result.success) {
+      emit('login-success')
+    } else {
+      errors.password = result.error
+    }
   } catch (error) {
     errors.password = '로그인에 실패했습니다'
   } finally {
