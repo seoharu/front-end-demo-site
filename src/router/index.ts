@@ -13,6 +13,12 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/views/AuthPage.vue')
   },
   {
+    path: '/base',
+    name: 'base',
+    component: () => import('@/components/layout/BaseLayout.vue')
+  },
+
+  {
     path: '/about',
     name: 'about',
     // route level code-splitting
