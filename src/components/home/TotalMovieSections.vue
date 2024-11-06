@@ -1,3 +1,4 @@
+```vue
 <template>
   <div class="movie-sections space-y-12 py-12">
     <PopularMovies
@@ -26,10 +27,9 @@
 <script setup>
 import PopularMovies from "@/components/home/sections/PopularMovies.vue";
 import NowPlayingMovies from "@/components/home/sections/NowPlayingMovies.vue";
-import TopRatedMovies from "@/components/home/sections/TopRatedMovies.vue"
+import TopRatedMovies from "@/components/home/sections/TopRatedMovies.vue";
 import UpcomingMovies from "@/components/home/sections/UpcomingMovies.vue";
 
-// eslint-disable-next-line no-undef
 const emit = defineEmits(['refresh', 'show-detail', 'featured-movie']);
 </script>
 
@@ -38,3 +38,4 @@ const emit = defineEmits(['refresh', 'show-detail', 'featured-movie']);
   @apply container mx-auto px-4;
 }
 </style>
+```

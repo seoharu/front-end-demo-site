@@ -37,13 +37,23 @@ const toggleAuthMode = () => {
   isSignUp.value = !isSignUp.value
 }
 
-const handleLoginSuccess = () => {
-  router.push('/')
-}
+const handleLoginSuccess = (userData: any) => {
+  // 로그인 성공시 localStorage에 사용자 정보 저장
+  localStorage.setItem('user', JSON.stringify(userData));
+  localStorage.setItem('TMDb-Key', userData.password); // TMDB API 키로 사용
 
-const handleRegisterSuccess = () => {
-  isSignUp.value = false
-}
+  // 홈페이지로 리다이렉트
+  router.push('/');
+};
+
+const handleRegisterSuccess = (userData: any) => {
+  // 회원가입 성공시 localStorage에 사용자 정보 저장
+  localStorage.setItem('user', JSON.stringify(userData));
+  localStorage.setItem('TMDb-Key', userData.password);
+
+  // 로그인 폼으로 전환
+  isSignUp.value = false;
+};
 </script>
 
 <style scoped lang="scss">
