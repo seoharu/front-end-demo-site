@@ -1,142 +1,159 @@
+// src/composables/useAuth.ts
 import { ref } from 'vue'
+import { useValidation } from './useValidation'
 
 interface User {
-  email: string;
-  apiKey: string;  // TMDB API Key를 비밀번호로 사용
+  id: string
+  password: string // TMDB API Key
 }
 
-interface LoginForm {
-  email: string;
-  password: string;
-  rememberMe?: boolean;
+interface AuthResponse {
+  success: boolean
+  error?: string
 }
 
-interface RegisterForm {
-  email: string;
-  password: string;
-  confirmPassword: string;
-  agreement: boolean;
-}
+export const useAuth = () => {
+  const { validateLoginForm, validateRegisterForm } = useValidation()
+  const currentUser = ref<string | null>(null)
 
-export function useAuth() {
-  const isAuthenticated = ref(false)
-  const currentUser = ref<User | null>(null)
-
-  // 초기 인증 상태 체크
-  const initAuth = () => {
-    const savedUser = localStorage.getItem('currentUser')
-    const savedToken = localStorage.getItem('TMDb-Key')
-
-    if (savedUser && savedToken) {
-      currentUser.value = JSON.parse(savedUser)
-      isAuthenticated.value = true
+  const validateTMDbKey = async (apiKey: string): Promise<boolean> => {
+    try {
+      const response = await fetch(
+        `https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}&language=ko-KR&page=1`
+      )
+      return response.ok
+    } catch {
+      return false
     }
   }
 
-  // 로그인
-  const login = async (form: LoginForm): Promise<{ success: boolean; error?: string }> => {
+  const login = async (form: {
+    email: string
+    password: string
+    rememberMe: boolean
+  }): Promise<AuthResponse> => {
     try {
+      // 폼 유효성 검사
+      const validation = validateLoginForm(form)
+      if (!validation.isValid) {
+        return {
+          success: false,
+          error: validation.error
+        }
+      }
+
       // 사용자 확인
-      const users = JSON.parse(localStorage.getItem('users') || '[]')
-      const user = users.find((u: User) => u.email === form.email)
+      const users: User[] = JSON.parse(localStorage.getItem('users') || '[]')
+      const user = users.find(u => u.id === form.email && u.password === form.password)
 
       if (!user) {
-        throw new Error('사용자를 찾을 수 없습니다')
+        return {
+          success: false,
+          error: '이메일 또는 비밀번호가 일치하지 않습니다.'
+        }
       }
 
-      if (user.apiKey !== form.password) {
-        throw new Error('비밀번호(API Key)가 일치하지 않습니다')
+      // TMDB API 키 검증
+      const isValidKey = await validateTMDbKey(form.password)
+      if (!isValidKey) {
+        return {
+          success: false,
+          error: '유효하지 않은 TMDB API 키입니다.'
+        }
       }
 
-      // 로그인 성공 처리
-      currentUser.value = user
-      isAuthenticated.value = true
-
-      // 로컬 스토리지에 저장
-      localStorage.setItem('currentUser', JSON.stringify(user))
-      localStorage.setItem('TMDb-Key', user.apiKey)
-
+      // 로그인 정보 저장
+      localStorage.setItem('TMDb-Key', form.password)
+      localStorage.setItem('currentUser', form.email)
       if (form.rememberMe) {
-        localStorage.setItem('rememberMe', 'true')
+        localStorage.setItem('keepLoggedIn', 'true')
       }
 
+      currentUser.value = form.email
       return { success: true }
     } catch (error) {
+      console.error('Login error:', error)
       return {
         success: false,
-        error: error instanceof Error ? error.message : '로그인에 실패했습니다'
+        error: '로그인 중 오류가 발생했습니다.'
       }
     }
   }
 
-  // 회원가입
-  const register = async (form: RegisterForm): Promise<{ success: boolean; error?: string }> => {
+  const register = async (form: {
+    email: string
+    password: string
+    confirmPassword: string
+    agreement: boolean
+  }): Promise<AuthResponse> => {
     try {
-      // 이메일 중복 체크
-      const users = JSON.parse(localStorage.getItem('users') || '[]')
-      if (users.some((u: User) => u.email === form.email)) {
-        throw new Error('이미 등록된 이메일입니다')
+      // 폼 유효성 검사
+      const validation = validateRegisterForm(form)
+      if (!validation.isValid) {
+        return {
+          success: false,
+          error: validation.error
+        }
       }
 
-      // 비밀번호 확인
-      if (form.password !== form.confirmPassword) {
-        throw new Error('비밀번호가 일치하지 않습니다')
+      // TMDB API 키 검증
+      const isValidKey = await validateTMDbKey(form.password)
+      if (!isValidKey) {
+        return {
+          success: false,
+          error: '유효하지 않은 TMDB API 키입니다.'
+        }
       }
 
-      // 약관 동의 확인
-      if (!form.agreement) {
-        throw new Error('이용약관에 동의해주세요')
+      // 중복 사용자 확인
+      const users: User[] = JSON.parse(localStorage.getItem('users') || '[]')
+      if (users.some(user => user.id === form.email)) {
+        return {
+          success: false,
+          error: '이미 등록된 이메일입니다.'
+        }
       }
 
-       // 새 사용자 추가
-      const newUser: User = {
-        email: form.email,
-        apiKey: form.password
-      }
-
-      users.push(newUser)
+      // 새 사용자 등록
+      users.push({
+        id: form.email,
+        password: form.password
+      })
       localStorage.setItem('users', JSON.stringify(users))
 
       return { success: true }
     } catch (error) {
+      console.error('Register error:', error)
       return {
         success: false,
-        error: error instanceof Error ? error.message : '회원가입에 실패했습니다'
+        error: '회원가입 중 오류가 발생했습니다.'
       }
     }
   }
 
-  // 로그아웃
   const logout = () => {
-    currentUser.value = null
-    isAuthenticated.value = false
-    localStorage.removeItem('currentUser')
     localStorage.removeItem('TMDb-Key')
-    localStorage.removeItem('rememberMe')
+    localStorage.removeItem('currentUser')
+    localStorage.removeItem('keepLoggedIn')
+    currentUser.value = null
   }
 
-  // 사용자 정보 가져오기
-  const getUserInfo = () => {
-    return currentUser.value
-  }
+  const checkAuth = () => {
+    const user = localStorage.getItem('currentUser')
+    const keepLoggedIn = localStorage.getItem('keepLoggedIn')
 
-  // API 키 가져오기
-  const getApiKey = () => {
-    return localStorage.getItem('TMDb-Key')
+    if (user && keepLoggedIn === 'true') {
+      currentUser.value = user
+      return true
+    }
+    return false
   }
-
-  // 앱 시작 시 인증 상태 초기화
-  initAuth()
 
   return {
-    isAuthenticated,
     currentUser,
     login,
     register,
     logout,
-    getUserInfo,
-    getApiKey
+    checkAuth
   }
 }
-
-
