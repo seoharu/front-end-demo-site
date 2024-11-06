@@ -1,6 +1,7 @@
 <template>
   <form class="auth-form" @submit.prevent="handleSubmit">
     <h2>회원가입</h2>
+
     <FormInput
       v-model="form.email"
       type="email"
@@ -13,6 +14,7 @@
       placeholder="비밀번호 (TMDB API Key)"
       :error="errors.password"
     />
+
     <FormInput
       v-model="form.confirmPassword"
       type="password"
@@ -22,10 +24,13 @@
     <FormCheckbox
       v-model="form.agreement"
       label="이용약관에 동의합니다"
+      :error="errors.agreement"
     />
+
     <FormButton :loading="isLoading">
       회원가입
     </FormButton>
+
     <button
       type="button"
       class="toggle-button"
@@ -62,30 +67,36 @@ const form = reactive({
 const errors = reactive({
   email: '',
   password: '',
-  confirmPassword: ''
+  confirmPassword: '',
+  agreement: ''
 })
 
 const handleSubmit = async () => {
   try {
     isLoading.value = true
-    errors.email = ''
-    errors.password = ''
-    errors.confirmPassword = ''
-
-    // 이메일 검증
-    if (!form.email.includes('@')) {
-      errors.email = '유효한 이메일을 입력해주세요'
-      return
-    }
+    // 에러 초기화
+    Object.keys(errors).forEach(key => {
+      errors[key as keyof typeof errors] = ''
+    })
 
     const result = await register(form)
     if (result.success) {
       emit('register-success')
     } else {
-      errors.password = result.error
+      // 에러 메시지에 따라 적절한 필드에 에러 표시
+      if (result.error?.includes('이메일')) {
+        errors.email = result.error
+      } else if (result.error?.includes('비밀번호 확인')) {
+        errors.confirmPassword = result.error
+      } else if (result.error?.includes('비밀번호')) {
+        errors.password = result.error
+      } else if (result.error?.includes('약관')) {
+        errors.agreement = result.error
+      } else {
+        // 기타 에러
+        errors.password = result.error
+      }
     }
-  } catch (error) {
-    errors.password = '회원가입에 실패했습니다'
   } finally {
     isLoading.value = false
   }

@@ -1,12 +1,14 @@
 <template>
   <form class="auth-form" @submit.prevent="handleSubmit">
     <h2>로그인</h2>
+
     <FormInput
       v-model="form.email"
       type="email"
       placeholder="이메일"
       :error="errors.email"
     />
+
     <FormInput
       v-model="form.password"
       type="password"
@@ -17,9 +19,11 @@
       v-model="form.rememberMe"
       label="로그인 상태 유지"
     />
+
     <FormButton :loading="isLoading">
       로그인
     </FormButton>
+
     <button
       type="button"
       class="toggle-button"
@@ -63,20 +67,17 @@ const handleSubmit = async () => {
     errors.email = ''
     errors.password = ''
 
-    // 이메일 검증
-    if (!form.email.includes('@')) {
-      errors.email = '유효한 이메일을 입력해주세요'
-      return
-    }
-
-    const result = await login(form)
+   const result = await login(form)
     if (result.success) {
       emit('login-success')
     } else {
-      errors.password = result.error
+      // 에러 메시지에 따라 적절한 필드에 에러 표시
+      if (result.error?.includes('이메일')) {
+        errors.email = result.error
+      } else {
+        errors.password = result.error
+      }
     }
-  } catch (error) {
-    errors.password = '로그인에 실패했습니다'
   } finally {
     isLoading.value = false
   }
