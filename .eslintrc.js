@@ -1,4 +1,8 @@
 module.exports = {
+  globals: {
+    defineProps: "readonly",
+    defineEmits: "readonly",
+  },
   root: true,
   env: {
     node: true
