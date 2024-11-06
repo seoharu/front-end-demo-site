@@ -1,55 +1,93 @@
+
 <template>
-  <div class="home min-h-screen bg-gray-900 w-full">
-    <!-- 로딩 상태 -->
-    <div v-if="loading" class="flex justify-center items-center min-h-screen">
-      <div class="animate-spin rounded-full h-12 w-12 border-4 border-white border-t-transparent"></div>
-    </div>
+  <BaseLayout>
+    <!-- Header -->
+    <PageHeader
+      :is-logged-in="isLoggedIn"
+      :user-email="userEmail"
+      @logout="handleLogout"
+    />
 
-    <div v-else class="flex flex-col min-h-screen">
-      <!-- 메인 배너 -->
-      <FeaturedMovieBanner
-        v-if="featuredMovie"
-        :movie="featuredMovie"
-        @show-detail="showMovieDetail"
-        class="w-full"
-      />
-
-      <!-- 영화 섹션들 -->
-      <div class="flex-grow">
-        <div class="container mx-auto px-4 py-8">
-          <TotalMovieSections
-            @refresh="loadMovies"
-            @show-detail="showMovieDetail"
-            @featured-movie="setFeaturedMovie"
-          />
-        </div>
+    <div class="home min-h-screen bg-gray-900 w-full">
+      <!-- 로딩 상태 -->
+      <div v-if="loading" class="flex justify-center items-center min-h-screen">
+        <div class="animate-spin rounded-full h-12 w-12 border-4 border-white border-t-transparent"></div>
       </div>
 
-      <!-- 영화 상세 모달 -->
-      <MovieDetailModal
-        v-if="selectedMovie"
-        :movie="selectedMovie"
-        @close="selectedMovie = null"
-        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
-      />
-    </div>
+      <div v-else class="flex flex-col min-h-screen">
+        <!-- 메인 배너 -->
+        <FeaturedMovieBanner
+          v-if="featuredMovie"
+          :movie="featuredMovie"
+          @show-detail="showMovieDetail"
+          class="w-full"
+        />
 
-    <!-- 스크롤 탑 버튼 -->
-    <ScrollToTop class="fixed bottom-8 right-8 z-40"/>
-  </div>
+        <!-- 영화 섹션들 -->
+        <div class="flex-grow">
+          <div class="container mx-auto px-4 py-8">
+            <TotalMovieSections
+              @refresh="loadMovies"
+              @show-detail="showMovieDetail"
+              @featured-movie="setFeaturedMovie"
+            />
+          </div>
+        </div>
+
+        <!-- 영화 상세 모달 -->
+        <MovieDetailModal
+          v-if="selectedMovie"
+          :movie="selectedMovie"
+          @close="selectedMovie = null"
+          class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+        />
+      </div>
+
+      <!-- 스크롤 탑 버튼 -->
+      <ScrollToTop class="fixed bottom-8 right-8 z-40"/>
+    </div>
+  </BaseLayout>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import BaseLayout from '@/components/layout/BaseLayout.vue';
+import PageHeader from '@/components/layout/PageHeader.vue';
 import movieService from '@/services/movieService';
 import MovieDetailModal from "@/components/movie/MovieDetailModal.vue";
 import ScrollToTop from "@/components/layout/ScrollToTop.vue";
 import FeaturedMovieBanner from "@/components/home/FeaturedMovieBanner.vue";
 import TotalMovieSections from "@/components/home/TotalMovieSections.vue";
 
+const router = useRouter();
+
+// State
 const loading = ref(true);
 const featuredMovie = ref(null);
 const selectedMovie = ref(null);
+const isLoggedIn = ref(false);
+const userEmail = ref('');
+
+// Check login status
+const checkLoginStatus = () => {
+  const apiKey = localStorage.getItem('TMDb-Key');
+  const user = localStorage.getItem('user');
+
+  if (apiKey && user) {
+    isLoggedIn.value = true;
+    const userData = JSON.parse(user);
+    userEmail.value = userData.email;
+  } else {
+    router.push('/signin');
+  }
+};
+
+const handleLogout = () => {
+  localStorage.removeItem('TMDb-Key');
+  localStorage.removeItem('user');
+  router.push('/signin');
+};
 
 const setFeaturedMovie = (movie) => {
   featuredMovie.value = movie;
@@ -80,6 +118,7 @@ const loadMovies = async () => {
 };
 
 onMounted(() => {
+  checkLoginStatus();
   loadMovies();
 });
 </script>
@@ -96,9 +135,10 @@ onMounted(() => {
   min-height: 100vh;
   width: 100%;
   overflow-x: hidden;
+  padding-top: 64px; /* Header 높이만큼 패딩 추가 */
 }
 
-/* 스크롤바 스타일링 (선택사항) */
+/* 스크롤바 스타일링 */
 ::-webkit-scrollbar {
   width: 8px;
 }

@@ -1,5 +1,5 @@
 <script>
-import PageHeader from './Header.vue'
+import PageHeader from './PageHeader.vue'
 import ScrollToTop from './ScrollToTop.vue'
 
 export default {
