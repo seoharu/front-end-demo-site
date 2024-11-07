@@ -19,13 +19,11 @@
 
       <!-- 영화 섹션들 -->
       <div class="flex-grow">
-        <div class="container mx-auto px-4 py-8">
-          <TotalMovieSections
-            @refresh="loadMovies"
-            @show-detail="showMovieDetail"
-            @featured-movie="setFeaturedMovie"
-          />
-        </div>
+        <TotalMovieSections
+          @refresh="loadMovies"
+          @show-detail="showMovieDetail"
+          @featured-movie="setFeaturedMovie"
+        />
       </div>
 
       <!-- 영화 상세 모달 -->
@@ -43,6 +41,7 @@
 </template>
 
 <script setup>
+// 스크립트 부분은 그대로 유지
 import { ref, onMounted } from 'vue';
 import movieService from '@/services/movieService';
 import MovieDetailModal from "@/components/movie/MovieDetailModal.vue";
@@ -71,7 +70,6 @@ const showMovieDetail = async (movie) => {
 const loadMovies = async () => {
   try {
     loading.value = true;
-    // 초기 인기 영화 데이터를 로드하여 featured movie 설정
     const { data } = await movieService.getPopularMovies();
     if (data.results && data.results.length > 0) {
       featuredMovie.value = data.results[0];
@@ -89,21 +87,16 @@ onMounted(() => {
 </script>
 
 <style scoped>
-
-.container {
-  width: 100%;
-
-}
-
 .home {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   width: 100%;
   overflow-x: hidden;
+  background-color: rgb(17, 17, 17);  /* Netflix 스타일의 어두운 배경 */
 }
 
-/* 스크롤바 스타일링 (선택사항) */
+/* 스크롤바 스타일링 */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -119,5 +112,23 @@ onMounted(() => {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #6b7280;
+}
+
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+  .home {
+    padding-bottom: 4rem;  /* 모바일에서 하단 여백 추가 */
+  }
+}
+
+/* 전환 효과 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
