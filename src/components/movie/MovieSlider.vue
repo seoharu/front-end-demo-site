@@ -1,76 +1,68 @@
-<!-- MovieSlider.vue -->
 <template>
-  <div class="movie-slider" v-if="section && section.movies.length > 0">
-    <h2 class="text-white text-2xl font-bold mb-4">{{ section.title }}</h2>
+  <div class="movie-section" v-if="section && section.movies.length > 0">
+    <h2 class="text-white text-xl font-bold mb-2 px-4">{{ section.title }}</h2>
 
-    <div class="relative group">
-      <!-- 슬라이더 컨테이너 -->
-      <div class="slider-viewport overflow-hidden">
-        <!-- 실제 슬라이딩되는 컨테이너 -->
+    <Swiper
+      :modules="modules"
+      :slides-per-view="'auto'"
+      :space-between="8"
+      :navigation="{
+        nextEl: '.swiper-button-next',
+        prevEl: '.swiper-button-prev'
+      }"
+      class="movie-swiper"
+    >
+      <SwiperSlide
+        v-for="movie in section.movies"
+        :key="movie.id"
+        class="movie-slide"
+      >
         <div
-          ref="sliderTrack"
-          class="slider-track flex transition-transform duration-500"
-          :style="{ transform: `translateX(${-currentSlide * 100}%)` }"
+          class="movie-card"
+          @click="$emit('show-detail', movie)"
         >
-          <!-- 각 슬라이드 페이지 -->
-          <div
-            v-for="(chunk, index) in movieChunks"
-            :key="index"
-            class="flex-none w-full flex gap-4 px-4"
-          >
-            <!-- 각 영화 카드 -->
-            <div
-              v-for="movie in chunk"
-              :key="movie.id"
-              class="movie-card"
-              @click="$emit('show-detail', movie)"
+          <div class="relative group">
+            <img
+              :src="movie.posterUrl"
+              :alt="movie.title"
+              class="rounded-md w-[100px] h-[150px] object-cover"
+              @error="handleImageError"
             >
-              <div class="relative group/card">
-                <img
-                  :src="movie.posterUrl"
-                  :alt="movie.title"
-                  class="rounded-md w-full h-auto object-cover"
-                >
-                <!-- 호버 오버레이 -->
-                <div class="absolute inset-0 bg-black/60 opacity-0 group-hover/card:opacity-100
-                            transition-opacity duration-300 flex flex-col justify-end p-4 rounded-md">
-                  <h3 class="text-white font-bold">{{ movie.title }}</h3>
-                  <p class="text-white/80 text-sm mt-1">
-                    {{ new Date(movie.release_date).getFullYear() }}
-                  </p>
+            <!-- 호버 오버레이 -->
+            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-60
+                        transition-all duration-300 rounded-md">
+              <div class="absolute bottom-0 w-full p-2 opacity-0 group-hover:opacity-100
+                          transition-opacity duration-300">
+                <h3 class="text-white font-bold text-xs line-clamp-1">{{ movie.title }}</h3>
+                <div class="flex items-center gap-1 mt-0.5">
+                  <span class="text-white/80 text-[10px]">
+                    {{ formatYear(movie.release_date) }}
+                  </span>
+                  <span v-if="movie.vote_average" class="text-white/80 text-[10px]">
+                    • ⭐ {{ movie.vote_average.toFixed(1) }}
+                  </span>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </SwiperSlide>
 
-      <!-- 네비게이션 버튼 -->
-      <button
-        v-if="currentSlide > 0"
-        @click="prevSlide"
-        class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80
-               w-10 h-10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100
-               transition-opacity duration-300"
-      >
-        <i class="fas fa-chevron-left text-white"></i>
-      </button>
-
-      <button
-        v-if="currentSlide < movieChunks.length - 1"
-        @click="nextSlide"
-        class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80
-               w-10 h-10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100
-               transition-opacity duration-300"
-      >
-        <i class="fas fa-chevron-right text-white"></i>
-      </button>
-    </div>
+      <!-- 커스텀 네비게이션 버튼 -->
+      <div class="swiper-button-prev !w-8 !h-8"></div>
+      <div class="swiper-button-next !w-8 !h-8"></div>
+    </Swiper>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { Swiper, SwiperSlide } from 'swiper/vue';
+import { Navigation } from 'swiper/modules';
+// Import Swiper styles
+import 'swiper/css';
+import 'swiper/css/navigation';
+
+const modules = [Navigation];
 
 const props = defineProps({
   section: {
@@ -80,75 +72,86 @@ const props = defineProps({
   }
 });
 
-const currentSlide = ref(0);
-const MOVIES_PER_SLIDE = 6; // 한 슬라이드당 보여줄 영화 수
-
-// 영화 목록을 슬라이드별로 분할
-const movieChunks = computed(() => {
-  const chunks = [];
-  for (let i = 0; i < props.section.movies.length; i += MOVIES_PER_SLIDE) {
-    chunks.push(props.section.movies.slice(i, i + MOVIES_PER_SLIDE));
-  }
-  return chunks;
-});
-
-const nextSlide = () => {
-  if (currentSlide.value < movieChunks.value.length - 1) {
-    currentSlide.value++;
-  }
+const formatYear = (dateString) => {
+  if (!dateString) return '';
+  return new Date(dateString).getFullYear();
 };
 
-const prevSlide = () => {
-  if (currentSlide.value > 0) {
-    currentSlide.value--;
-  }
+const handleImageError = (e) => {
+  e.target.src = '/placeholder-poster.jpg';
 };
 </script>
 
-<style scoped>
-.slider-viewport {
+<style>
+.movie-section {
   width: 100%;
-  overflow: hidden;
+  margin: 1rem 0;
+  position: relative;
 }
 
-.slider-track {
-  display: flex;
-  width: 100%;
+.movie-swiper {
+  padding: 0.5rem 2rem;
+}
+
+.movie-slide {
+  width: auto !important;
 }
 
 .movie-card {
-  flex: 0 0 calc(100% / 6 - 1rem); /* 6개의 영화를 한 줄에 표시 */
-  position: relative;
-  transition: transform 0.3s ease;
+  transition: transform 0.2s ease;
+  cursor: pointer;
 }
 
 .movie-card:hover {
-  transform: scale(1.05);
+  transform: scale(1.1);
   z-index: 1;
 }
 
+/* Swiper 네비게이션 버튼 커스텀 스타일 */
+.swiper-button-prev,
+.swiper-button-next {
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  color: white !important;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.swiper-button-prev::after,
+.swiper-button-next::after {
+  font-size: 14px !important;
+}
+
+.movie-section:hover .swiper-button-prev,
+.movie-section:hover .swiper-button-next {
+  opacity: 1;
+}
+
+.swiper-button-prev:hover,
+.swiper-button-next:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.swiper-button-disabled {
+  display: none !important;
+}
+
 /* 반응형 디자인 */
-@media (max-width: 1200px) {
-  .movie-card {
-    flex: 0 0 calc(100% / 5 - 1rem); /* 5개 표시 */
-  }
-}
-
-@media (max-width: 1024px) {
-  .movie-card {
-    flex: 0 0 calc(100% / 4 - 1rem); /* 4개 표시 */
-  }
-}
-
-@media (max-width: 768px) {
-  .movie-card {
-    flex: 0 0 calc(100% / 3 - 1rem); /* 3개 표시 */
-  }
-}
-
 @media (max-width: 640px) {
-  .movie-card {
-    flex: 0 0 calc(100% / 2 - 1rem); /* 2개 표시 */
+  .movie-card img {
+    width: 80px;
+    height: 120px;
+  }
+
+  .swiper-button-prev,
+  .swiper-button-next {
+    width: 24px !important;
+    height: 24px !important;
+  }
+
+  .swiper-button-prev::after,
+  .swiper-button-next::after {
+    font-size: 12px !important;
   }
 }
 </style>
