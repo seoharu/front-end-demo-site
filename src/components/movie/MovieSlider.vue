@@ -5,7 +5,7 @@
     <Swiper
       :modules="modules"
       :slides-per-view="'auto'"
-      :space-between="8"
+      :space-between="16"
       :navigation="{
         nextEl: '.swiper-button-next',
         prevEl: '.swiper-button-prev'
@@ -26,7 +26,7 @@
             <img
               :src="movie.posterUrl"
               :alt="movie.title"
-              class="rounded-md w-[100px] h-[150px] object-cover"
+              class="rounded-md w-[7px] h-[10px] object-cover"
               @error="handleImageError"
             >
             <!-- 호버 오버레이 -->
@@ -87,7 +87,7 @@ const handleImageError = (e) => {
 <style>
 .movie-section {
   width: 100%;
-  margin: 1rem 0;
+  margin: 2rem 0;
   position: relative;
 }
 
@@ -141,8 +141,8 @@ const handleImageError = (e) => {
 /* 반응형 디자인 */
 @media (max-width: 640px) {
   .movie-card img {
-    width: 80px;
-    height: 120px;
+    width: 7px;
+    height: 10px;
   }
 
   .swiper-button-prev,
