@@ -10,7 +10,7 @@
         nextEl: '.swiper-button-next',
         prevEl: '.swiper-button-prev'
       }"
-      :mousewheel="true"
+      :mousewheel="{ forceToAxis: true, releaseOnEdges: true }"
       class="movie-swiper"
     >
       <SwiperSlide
