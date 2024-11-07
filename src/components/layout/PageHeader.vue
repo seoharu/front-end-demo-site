@@ -1,24 +1,24 @@
 <template>
   <header
-    class="fixed top-0 w-full h-14 z-50 transition-all duration-300"
+    class="fixed top-0 w-full h-16 z-50 bg-gray-700 shadow-lg transition-all duration-300"
     :class="{
       'bg-black/80 shadow-lg': isScrolled,
       'bg-gradient-to-b from-black/80 to-transparent': !isScrolled
     }"
   >
-    <nav class="container mx-auto px-4 h-full flex items-center justify-between">
+    <nav class="container mx-auto px-8 h-full flex items-center justify-between">
       <!-- Logo -->
       <router-link to="/" class="flex items-center">
-        <font-awesome-icon icon="fa-solid fa-film" class="text-white text-2xl" />
+        <font-awesome-icon icon="fas fa-film" class="logo" />
       </router-link>
 
       <!-- Main Navigation -->
-      <div class="flex items-center space-x-8">
+      <div class="movie-pages">
         <router-link
           v-for="item in menuItems"
           :key="item.path"
           :to="item.path"
-          class="text-white hover:text-red-500 transition-colors duration-200 text-sm"
+          class="movie-page"
           :class="{ 'text-red-500': $route.path === item.path }"
         >
           {{ item.name }}
@@ -26,9 +26,16 @@
       </div>
 
       <!-- Right Side User Section -->
-      <div class="flex items-center space-x-4 relative">
+      <div class="right-side">
+        <button
+          @click="handleUserClick"
+          v-if="isLoggedIn"
+          class="text-white hover:text-red-500 transition-colors duration-200"
+        >
+          <font-awesome-icon icon="fas fa-user" class="text-lg" />
+        </button>
         <router-link
-          v-if="!isLoggedIn"
+          v-else
           to="/signin"
           class="text-white hover:text-red-500 transition-colors duration-200 text-sm flex items-center"
         >
@@ -36,40 +43,31 @@
           로그인
         </router-link>
 
-        <div v-else>
-          <button
-            @click="handleUserClick"
-            class="text-white hover:text-red-500 transition-colors duration-200"
+        <!-- User Dropdown Menu -->
+        <Transition
+          enter-active-class="transition duration-200 ease-out"
+          enter-from-class="transform scale-95 opacity-0"
+          enter-to-class="transform scale-100 opacity-100"
+          leave-active-class="transition duration-75 ease-in"
+          leave-from-class="transform scale-100 opacity-100"
+          leave-to-class="transform scale-95 opacity-0"
+        >
+          <div
+            v-if="isUserMenuOpen"
+            class="absolute right-0 top-full mt-1 w-48 bg-black/95 rounded-md shadow-lg py-1"
           >
-            <font-awesome-icon icon="fas fa-user" class="text-lg" />
-          </button>
-
-          <!-- User Dropdown Menu -->
-          <Transition
-            enter-active-class="transition duration-200 ease-out"
-            enter-from-class="transform scale-95 opacity-0"
-            enter-to-class="transform scale-100 opacity-100"
-            leave-active-class="transition duration-75 ease-in"
-            leave-from-class="transform scale-100 opacity-100"
-            leave-to-class="transform scale-95 opacity-0"
-          >
-            <div
-              v-if="isUserMenuOpen"
-              class="absolute right-0 top-full mt-1 w-48 bg-black/95 rounded-md shadow-lg py-1"
-            >
-              <div class="px-4 py-1.5 text-white border-b border-gray-700 text-sm">
-                {{ currentUser }}
-              </div>
-              <button
-                @click="handleLogout"
-                class="w-full text-left px-4 py-1.5 text-white hover:bg-gray-800 transition-colors duration-200 text-sm"
-              >
-                <font-awesome-icon icon="fas fa-sign-out-alt" class="mr-2" />
-                로그아웃
-              </button>
+            <div class="px-4 py-1.5 text-white border-b border-gray-700 text-sm whitespace-nowrap">
+              {{ currentUser }}
             </div>
-          </Transition>
-        </div>
+            <button
+              @click="handleLogout"
+              class="w-full text-left px-4 py-1.5 text-white hover:bg-gray-800 transition-colors duration-200 text-sm"
+            >
+              <font-awesome-icon icon="fas fa-sign-out-alt" class="mr-2" />
+              로그아웃
+            </button>
+          </div>
+        </Transition>
       </div>
     </nav>
   </header>
@@ -143,10 +141,57 @@ onUnmounted(() => {
 
 <style scoped>
 .container {
-  max-width: 1200px;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
+  height: 40px;
+  padding: 20px 4%;
+  background-color: grey;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1001;
+  transition: background-color 0.3s ease;
+}
+
+.logo {
+  color: deepskyblue;
+  cursor: pointer;
+}
+.logo:hover {
+  color: #3b82f6;
+}
+
+.movie-pages {
+  display: flex;
+  flex-direction: row;
+  text-align: left;
+  align-items: flex-start;
+  justify-content: left;
+  gap: 50px;
+
+}
+.movie-page {
+  text-decoration: none;
+  white-space: nowrap;
+  color: deepskyblue;
+  cursor: pointer;
+}
+.movie-page:hover {
+  color: #3b82f6;
+}
+
+.right-side {
+  margin: auto 0;
+  cursor: pointer;
+}
+.right-side:hover {
+  color:#4b5563;
+}
+.flex.items-center {
+  align-items: center;
 }
 
 .flex.items-center.space-x-8 {
