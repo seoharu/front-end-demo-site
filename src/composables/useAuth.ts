@@ -1,5 +1,5 @@
 // src/composables/useAuth.ts
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useValidation } from './useValidation'
 
 interface User {
@@ -15,6 +15,15 @@ interface AuthResponse {
 export const useAuth = () => {
   const { validateLoginForm, validateRegisterForm } = useValidation()
   const currentUser = ref<string | null>(null)
+
+  // 헤더를 위한 추가 상태
+  const isScrolled = ref(false)
+  const isMobileMenuOpen = ref(false)
+
+  // 로그인 상태를 computed로 제공
+  const isLoggedIn = computed(() => {
+    return currentUser.value !== null && localStorage.getItem('TMDb-Key') !== null
+  })
 
   const validateTMDbKey = async (apiKey: string): Promise<boolean> => {
     try {
@@ -136,6 +145,7 @@ export const useAuth = () => {
     localStorage.removeItem('currentUser')
     localStorage.removeItem('keepLoggedIn')
     currentUser.value = null
+    isMobileMenuOpen.value = false // 로그아웃 시 모바일 메뉴 닫기
   }
 
   const checkAuth = () => {
@@ -149,11 +159,49 @@ export const useAuth = () => {
     return false
   }
 
+  // 헤더를 위한 추가 메서드들
+  const handleScroll = () => {
+    isScrolled.value = window.scrollY > 50
+  }
+
+  const toggleMobileMenu = () => {
+    isMobileMenuOpen.value = !isMobileMenuOpen.value
+  }
+
+  const closeMobileMenu = () => {
+    isMobileMenuOpen.value = false
+  }
+
+  // 네비게이션 메뉴 아이템
+  const menuItems = [
+    { name: '홈', path: '/' },
+    { name: '대세 콘텐츠', path: '/popular' },
+    { name: '찾아보기', path: '/search' },
+    { name: '내가 찜한 콘텐츠', path: '/wishlist' }
+  ]
+
+  // 인증이 필요한 라우트 체크
+  const requireAuth = () => {
+    if (!isLoggedIn.value) {
+      return false
+    }
+    return true
+  }
+
   return {
     currentUser,
+    isLoggedIn,
     login,
     register,
     logout,
-    checkAuth
+    checkAuth,
+    requireAuth,
+    // 헤더 관련 상태와 메서드들
+    isScrolled,
+    isMobileMenuOpen,
+    handleScroll,
+    toggleMobileMenu,
+    closeMobileMenu,
+    menuItems
   }
 }

@@ -1,5 +1,8 @@
 <template>
   <div class="home min-h-screen bg-gray-900 w-full">
+    <!-- 헤더 추가 -->
+    <PageHeader />
+
     <!-- 로딩 상태 -->
     <div v-if="loading" class="flex justify-center items-center min-h-screen">
       <div class="animate-spin rounded-full h-12 w-12 border-4 border-white border-t-transparent"></div>
@@ -46,6 +49,7 @@ import MovieDetailModal from "@/components/movie/MovieDetailModal.vue";
 import ScrollToTop from "@/components/layout/ScrollToTop.vue";
 import FeaturedMovieBanner from "@/components/home/FeaturedMovieBanner.vue";
 import TotalMovieSections from "@/components/home/TotalMovieSections.vue";
+import PageHeader from "@/components/layout/PageHeader.vue";
 
 const loading = ref(true);
 const featuredMovie = ref(null);
