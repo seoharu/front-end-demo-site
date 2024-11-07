@@ -61,6 +61,7 @@ defineEmits(['play', 'show-detail']);
 </script>
 
 <style scoped>
+
 .banner-container {
   position: relative;
   width: 100%;
