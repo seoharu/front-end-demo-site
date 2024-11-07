@@ -10,6 +10,7 @@
         nextEl: '.swiper-button-next',
         prevEl: '.swiper-button-prev'
       }"
+      :mousewheel="true"
       class="movie-swiper"
     >
       <SwiperSlide
@@ -57,12 +58,13 @@
 
 <script setup>
 import { Swiper, SwiperSlide } from 'swiper/vue';
-import { Navigation } from 'swiper/modules';
+import { Navigation, Mousewheel } from 'swiper/modules';
 // Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/navigation';
+import 'swiper/css/mousewheel';
 
-const modules = [Navigation];
+const modules = [Navigation, Mousewheel];
 
 const props = defineProps({
   section: {
