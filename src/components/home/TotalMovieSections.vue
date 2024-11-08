@@ -47,7 +47,7 @@ const emit = defineEmits(['refresh', 'show-detail', 'featured-movie']);
 .sections-container {
   @apply container mx-auto px-4 space-y-16;
   /* 섹션 간격 및 패딩 조정 */
-  padding-top: 100px;
+  padding-top: 50px;
 }
 
 /* 반응형 조정 */
