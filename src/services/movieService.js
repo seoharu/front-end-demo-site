@@ -42,7 +42,7 @@ const handleApiError = (error) => {
   throw error;
 };
 
-export default {
+export const movieService = {
   async getPopularMovies(page = 1) {
     try {
       return await apiClient.get(`/movie/popular`, { params: { page } });
@@ -96,3 +96,5 @@ export default {
     }
   }
 };
+// 기본 export와 named export 둘 다 제공
+export default movieService;
