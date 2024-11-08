@@ -5,7 +5,7 @@
     <Swiper
       :modules="modules"
       :slides-per-view="'auto'"
-      :space-between="16"
+      :space-between="8"
       :navigation="{
         nextEl: '.swiper-button-next',
         prevEl: '.swiper-button-prev'

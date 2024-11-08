@@ -26,7 +26,7 @@
       </div>
 
       <!-- Right Side User Section -->
-      <div class="right-side">
+      <div class="right-side relative">
         <button
           @click="handleUserClick"
           v-if="isLoggedIn"

@@ -44,7 +44,7 @@
           <img
             :src="`https://image.tmdb.org/t/p/w92${movie.poster_path}`"
             :alt="movie.title"
-            class="w-16 h-24 object-cover rounded"
+            class="w-8 h-10 object-cover rounded"
           />
           <div class="flex-grow">
             <h3 class="font-bold">{{ movie.title }}</h3>
