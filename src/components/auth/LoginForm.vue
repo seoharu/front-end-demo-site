@@ -36,9 +36,9 @@
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
-import FormInput from '@/components/common/FormInput.vue'
-import FormButton from '@/components/common/FormButton.vue'
-import FormCheckbox from '@/components/common/FormCheckbox.vue'
+import FormInput from '@/components/common/Form/FormInput.vue'
+import FormButton from '@/components/common/Form/FormButton.vue'
+import FormCheckbox from '@/components/common/Form/FormCheckbox.vue'
 import { useAuth } from '@/composables/useAuth'
 
 const { login } = useAuth()
