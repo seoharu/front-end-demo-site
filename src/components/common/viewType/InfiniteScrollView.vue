@@ -1,127 +1,101 @@
 <template>
   <div class="infinite-scroll-view" ref="scrollContainer">
     <!-- 영화 카드 그리드 -->
-    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4">
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 p-6 bg-gray-100 rounded-lg shadow-md">
       <MovieCard
         v-for="movie in movies"
         :key="movie.id"
         :movie="movie"
         @wishlist-updated="$emit('wishlist-updated', $event)"
         @show-detail="$emit('show-detail', $event)"
+        class="transition-transform transform hover:scale-105"
       />
     </div>
 
-    <!-- 로딩 상태 디버깅 -->
-    <div class="text-center py-2">
-      <p>Loading: {{ loading }}</p>
-      <p>Has More: {{ hasMore }}</p>
-      <p>Movies Length: {{ movies.length }}</p>
-    </div>
-
-
     <!-- 로딩 스피너 -->
+    <Loading :loading="loading" message="더 많은 영화를 불러오는 중..." />
+
+    <!-- 데이터 상태 메시지 -->
     <div
-      v-if="loading && hasMore"
-      class="flex flex-col justify-center items-center py-4"
+      v-if="!loading && !hasMore && movies.length > 0"
+      class="text-center py-4 text-gray-600 font-semibold"
     >
-      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-      <p class="mt-2 text-gray-600">더 많은 영화를 불러오는 중...</p>
+      모든 영화를 불러왔습니다.
     </div>
 
     <!-- 관찰 대상 요소 -->
-    <div
-      v-if="hasMore"
-      ref="observerTarget"
-      class="h-4 w-full"
-    ></div>
+    <div v-if="hasMore" ref="observerTarget" class="h-20 w-full"></div>
 
-    <!-- ScrollToTop 컴포넌트 -->
-    <ScrollToTop />
+    <!-- ScrollToTop 컴포넌트 (항상 고정된 위치) -->
+    <ScrollToTop class="fixed bottom-8 right-8" />
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import MovieCard from "@/components/common/MovieCard.vue";
+import Loading from "@/components/common/Loading.vue";
 import ScrollToTop from "@/components/layout/ScrollToTop.vue";
+import { useMovies } from "@/composables/useMovies";
 
-const props = defineProps({
-  movies: {
-    type: Array,
-    required: true
-  },
-  loading: {
-    type: Boolean,
-    default: false
-  },
-  hasMore: {
-    type: Boolean,
-    default: true
+// useMovies composable 사용
+const {
+  movies,
+  loading,
+  hasMore,
+  fetchPopularMovies,
+  loadMoreMovies
+} = useMovies();
+
+const handleScroll = () => {
+  // 무한 스크롤 로직
+  const scrollPosition = window.scrollY + window.innerHeight;
+  const documentHeight = document.documentElement.scrollHeight;
+
+  if (scrollPosition >= documentHeight - 100 && hasMore.value && !loading.value) {
+    loadMoreMovies();
   }
-});
+};
 
-// Props 변경 감지를 위한 watch 추가
-watch(() => props.loading, (newValue) => {
-  console.log('Loading state changed:', newValue);
-});
-
-watch(() => props.hasMore, (newValue) => {
-  console.log('HasMore state changed:', newValue);
-});
-
-watch(() => props.movies, (newValue) => {
-  console.log('Movies updated, length:', newValue.length);
-});
-
-const emit = defineEmits(['load-more', 'wishlist-updated', 'show-detail']);
-
-const scrollContainer = ref(null);
-const observerTarget = ref(null);
-let observer = null;
-
+// 영화 데이터를 초기 로드
 onMounted(() => {
-  observer = new IntersectionObserver(
-    (entries) => {
-      const firstEntry = entries[0];
-      if (firstEntry.isIntersecting && !props.loading && props.hasMore) {
-        emit('load-more');
-      }
-    },
-    {
-      root: null,
-      rootMargin: '100px',
-      threshold: 0
-    }
-  );
-
-  if (observerTarget.value) {
-    observer.observe(observerTarget.value);
-  }
+  fetchPopularMovies();
+  window.addEventListener('scroll', handleScroll);
 });
 
 onUnmounted(() => {
-  if (observer) {
-    observer.disconnect();
-  }
+  window.removeEventListener('scroll', handleScroll);
 });
 </script>
 
 <style scoped>
 .infinite-scroll-view {
-  min-height: 100vh;
+  overflow-y: auto;
   position: relative;
+  padding: 20px;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
-
-.animate-spin {
-  animation: spin 1s linear infinite;
+.movie-item {
+  margin-bottom: 10px;
 }
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+button.fixed {
+  bottom: 8px;
+  right: 8px;
+  z-index: 50;
+  padding: 12px;
+  border-radius: 50%;
+  background-color: #e74c3c;
+  color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+button.fixed:hover {
+  background-color: #c0392b;
+  transform: scale(1.1);
 }
 </style>
+
+

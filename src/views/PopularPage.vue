@@ -62,12 +62,12 @@ checkAuth();
 
 // 상태 관리
 const viewType = ref('table');
+const loading = ref(false);
 const loadingMessage = ref('영화 정보를 불러오는 중...');
 const allMovies = ref([]); // 무한 스크롤용 전체 영화 목록
 
 const {
   movies,
-  loading,
   fetchPopularMovies,
   error
 } = useMovies();
@@ -81,23 +81,21 @@ const {
 const { updateWishlist } = useWishlist();
 
 // 무한 스크롤 관련 상태
-const hasMore = computed(() => {
-  return currentPage.value < totalPages.value;
-});
+const hasMore = ref(true);
 
 // 뷰 타입 변경 핸들러
 const handleViewTypeChange = async (newType) => {
   viewType.value = newType;
+
+  // 뷰 타입 변경 시 초기화
+  currentPage.value = 1;
+  allMovies.value = [];
+  hasMore.value = true;
+
   if (newType === 'table') {
-    // 테이블 뷰로 전환 시 초기화
-    currentPage.value = 1;
-    allMovies.value = [];
-    await fetchPopularMovies(currentPage.value);
+    await fetchPopularMovies(1);
   } else {
-    // 무한 스크롤 뷰로 전환 시 초기화
-    currentPage.value = 1;
-    allMovies.value = [];
-    await handleLoadMore();
+    await handleLoadMore(); // 첫 페이지 데이터 로드
   }
 };
 
@@ -116,11 +114,18 @@ const handleLoadMore = async () => {
     loading.value = true;
     console.log('Loading started');
     const response = await fetchPopularMovies(currentPage.value + 1);
+    console.log('API Response:', response);
     if (response?.results) {
+      // 무한 스크롤일 때는 데이터 누적
       allMovies.value = [...allMovies.value, ...response.results];
       currentPage.value += 1;
-      console.log('New page:', currentPage.value);
-      console.log('Total movies:', allMovies.value.length);
+
+      // 다음 페이지가 있는지 판단하여 hasMore 업데이트
+      hasMore.value = currentPage.value < response.total_pages;
+      console.log('Updated hasMore state:', hasMore.value);
+    } else {
+      hasMore.value = false;
+      console.log('No more movies available');
     }
   } catch (err) {
     console.error('Error loading more movies:', err);
