@@ -12,6 +12,11 @@ const routes: Array<RouteRecordRaw> = [
     name: 'SignIn',
     component: () => import('@/views/AuthPage.vue')
   },
+  {
+    path: '/popular',
+    name: 'PopularPage',
+    component: () => import('@/views/PopularPage.vue')
+  },
 ]
 
 const router = createRouter({

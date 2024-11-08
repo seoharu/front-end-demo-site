@@ -62,7 +62,7 @@
 
 <script setup>
 import { computed } from 'vue';
-import MovieCard from './MovieCard.vue';
+import MovieCard from "@/components/common/MovieCard.vue"
 
 const props = defineProps({
   movies: {
