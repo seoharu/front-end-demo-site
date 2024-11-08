@@ -1,72 +1,46 @@
 <template>
-  <div v-if="movie" class="featured-movie">
+  <div v-if="movie" class="banner-container">
     <!-- 배경 이미지 섹션 -->
-    <div class="relative h-[70vh] min-h-[500px]">
+    <div class="banner-wrapper">
       <!-- 배경 포스터 -->
-      <div class="absolute inset-0 overflow-hidden">
+      <div class="banner-background">
         <img
           :src="`https://image.tmdb.org/t/p/original${movie.backdrop_path}`"
           :alt="movie.title"
-          class="w-full h-full object-cover"
+          class="banner-image"
         />
         <!-- 그라데이션 오버레이 -->
-        <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/50 to-transparent" />
+        <div class="gradient-overlay" />
       </div>
 
       <!-- 콘텐츠 섹션 -->
-      <div class="absolute bottom-0 left-0 w-full p-8 md:p-16">
-        <div class="max-w-4xl mx-auto">
+      <div class="banner-content">
+        <div class="content-wrapper">
           <!-- 제목 -->
-          <h1 class="text-4xl md:text-6xl font-bold mb-4 text-white">
+          <h1 class="movie-title">
             {{ movie.title }}
           </h1>
 
-          <!-- 영화 정보 -->
-          <div class="flex flex-wrap items-center gap-4 mb-4 text-white/90">
-            <div class="flex items-center">
-              <i class="fas fa-star text-yellow-400 mr-1"></i>
-              <span>{{ movie.vote_average.toFixed(1) }}</span>
-            </div>
-            <span>{{ formatDate(movie.release_date) }}</span>
-            <span v-if="movie.runtime">
-              <i class="fas fa-clock mr-1"></i>
-              {{ formatRuntime(movie.runtime) }}
-            </span>
-          </div>
-
           <!-- 개요 -->
-          <p class="text-lg mb-6 text-white/80 line-clamp-3 md:line-clamp-none">
+          <p class="movie-overview">
             {{ movie.overview }}
           </p>
 
           <!-- 액션 버튼들 -->
-          <div class="flex flex-wrap gap-4">
+          <div class="button-group">
             <button
               @click="$emit('play')"
-              class="button-common bg-white text-black hover:bg-gray-200"
-              role="button"
-              tabindex="0"
+              class="action-button play-button"
             >
-              <i class="fas fa-play mr-2"></i>
+              <i class="fas fa-play"></i>
               재생
             </button>
             <button
               @click="$emit('show-detail', movie)"
-              class="button-common bg-gray-600/50 text-white hover:bg-gray-600"
-              role="button"
-              tabindex="0"
+              class="action-button info-button"
             >
-              <i class="fas fa-info-circle mr-2"></i>
+              <i class="fas fa-info-circle"></i>
               상세정보
-            </button>
-            <button
-              @click="toggleWishlist"
-              class="button-common bg-gray-600/50 text-white hover:bg-gray-600"
-              role="button"
-              tabindex="0"
-            >
-              <i :class="['fas', isWishlisted ? 'fa-heart text-red-500' : 'fa-heart text-white']"></i>
-              <span class="ml-2">{{ isWishlisted ? '찜 해제' : '찜하기' }}</span>
             </button>
           </div>
         </div>
@@ -76,10 +50,6 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-
-
-// 소문자로 작성된 defineProps 사용
 const props = defineProps({
   movie: {
     type: Object,
@@ -87,100 +57,179 @@ const props = defineProps({
   },
 });
 
-// 소문자로 작성된 defineEmits 사용
-const emitEvent = defineEmits(['play', 'show-detail', 'wishlist-updated']);
-
-// 날짜 포맷팅 함수
-const formatDate = (dateStr) => {
-  return new Date(dateStr).toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-};
-
-// 러닝타임 포맷팅 함수
-const formatRuntime = (minutes) => {
-  const hours = Math.floor(minutes / 60);
-  const mins = minutes % 60;
-  return `${hours}시간 ${mins}분`;
-};
-
-// 찜하기 관련 로직
-const getWishlist = () => {
-  try {
-    return JSON.parse(localStorage.getItem('movieWishlist') || '[]');
-  } catch (e) {
-    console.error('localStorage에서 찜 목록을 불러오는 중 오류 발생', e);
-    return [];
-  }
-};
-
-const isWishlisted = computed(() => {
-  const wishlist = getWishlist();
-  return wishlist.some((item) => item.id === props.movie.id);
-});
-
-const toggleWishlist = () => {
-  let wishlist = getWishlist();
-  const index = wishlist.findIndex((item) => item.id === props.movie.id);
-
-  if (index === -1) {
-    wishlist.push(props.movie);
-  } else {
-    wishlist.splice(index, 1);
-  }
-
-  try {
-    localStorage.setItem('movieWishlist', JSON.stringify(wishlist));
-  } catch (e) {
-    console.error('localStorage에 찜 목록을 저장하는 중 오류 발생', e);
-  }
-
-  emitEvent('wishlist-updated');
-};
+defineEmits(['play', 'show-detail']);
 </script>
 
 <style scoped>
-.featured-movie {
+
+.banner-container {
   position: relative;
-  z-index: 1;
+  width: 100%;
+  height: 100vh;
+  max-height: 80vh;
+  overflow: hidden;
+  margin-top: -64px; /* 헤더 높이만큼 올리기 */
 }
 
-.featured-movie::after {
-  content: '';
+.banner-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.banner-background {
   position: absolute;
-  bottom: -1px;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.banner-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;
+}
+
+.gradient-overlay {
+  position: absolute;
+  top: 0;
   left: 0;
   right: 0;
-  height: 40px;
-  background: linear-gradient(to bottom, transparent, rgb(17 24 39));
-  pointer-events: none;
+  bottom: 0;
+  background: linear-gradient(
+    0deg,
+    rgb(20, 20, 20) 0%,
+    rgba(20, 20, 20, 0.7) 40%,
+    rgba(20, 20, 20, 0.4) 60%,
+    rgba(20, 20, 20, 0.1) 80%
+  );
 }
 
-/* 트랜지션 효과 */
-.featured-movie {
-  opacity: 0;
-  animation: fadeIn 1s ease forwards;
+.banner-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0 4rem;
+  margin-bottom: 5rem;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.content-wrapper {
+  max-width: 40rem;
 }
 
-/* 공통 버튼 스타일 */
-.button-common {
+.movie-title {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 1.5rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.movie-overview {
+  font-size: 1.25rem;
+  color: #e5e5e5;
+  margin-bottom: 1.5rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.5;
+}
+
+.button-group {
+  display: flex;
+  gap: 1rem;
+}
+
+.action-button {
   display: flex;
   align-items: center;
-  padding: 0.5rem 1.5rem;
-  border-radius: 0.5rem;
-  transition: background-color 0.3s;
+  padding: 0.8rem 2rem;
+  border-radius: 4px;
+  border: none;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-button i {
+  margin-right: 0.8rem;
+}
+
+.play-button {
+  background-color: white;
+  color: black;
+}
+
+.play-button:hover {
+  background-color: rgba(255, 255, 255, 0.75);
+}
+
+.info-button {
+  background-color: rgba(109, 109, 110, 0.7);
+  color: white;
+}
+
+.info-button:hover {
+  background-color: rgba(109, 109, 110, 0.5);
+}
+
+/* 반응형 스타일 */
+@media (max-width: 768px) {
+  .banner-container {
+    height: 60vh;
+  }
+
+  .banner-content {
+    padding: 0 2rem;
+    margin-bottom: 3rem;
+  }
+
+  .movie-title {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .movie-overview {
+    font-size: 1rem;
+    -webkit-line-clamp: 2;
+    margin-bottom: 1rem;
+  }
+
+  .action-button {
+    padding: 0.6rem 1.5rem;
+    font-size: 1rem;
+  }
+}
+
+/* 더 작은 화면 */
+@media (max-width: 480px) {
+  .banner-content {
+    padding: 0 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .movie-title {
+    font-size: 1.75rem;
+  }
+
+  .movie-overview {
+    -webkit-line-clamp: 2;
+    font-size: 0.9rem;
+  }
+
+  .action-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .action-button i {
+    margin-right: 0.5rem;
+  }
 }
 </style>
