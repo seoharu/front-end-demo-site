@@ -41,20 +41,29 @@
       :loading="loading"
       :message="loadingMessage"
     />
+    <!-- 영화 상세정보 모달 추가 -->
+    <MovieDetail
+      v-if="selectedMovie"
+      :movie="selectedMovie"
+      @close="closeModal"
+      @wishlist-updated="handleWishlistUpdate"
+    />
   </div>
+
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import {ref, watch} from 'vue';
 import PageHeader from '@/components/layout/PageHeader.vue';
 import Loading from '@/components/common/Loading.vue';
 import ViewToggle from '@/components/common/viewType/ViewToggle.vue';
 import TableView from '@/components/common/viewType/TableView.vue';
 import InfiniteScrollView from "@/components/common/viewType/InfiniteScrollView.vue";
-import { useMovies } from '@/composables/useMovies';
-import { usePagination } from '@/composables/usePagination';
-import { useWishlist } from '@/composables/useWishlist';
-import { useAuth } from '@/composables/useAuth';
+import MovieDetail from '@/components/movie/MovieDetailModal.vue';
+import {useMovies} from '@/composables/useMovies';
+import {usePagination} from '@/composables/usePagination';
+import {useWishlist} from '@/composables/useWishlist';
+import {useAuth} from '@/composables/useAuth';
 
 // 인증 상태 확인
 const { checkAuth } = useAuth();
@@ -162,10 +171,25 @@ const handleWishlistUpdate = (movie) => {
   updateWishlist(movie);
 };
 
+const selectedMovie = ref(null);
 // 영화 상세 정보 표시 핸들러
-const handleShowDetail = (movieId) => {
-  console.log('Show detail for movie:', movieId);
+const handleShowDetail = async (movieId) => {
+  try {
+    // TMDB API에서 영화 상세 정보 가져오기
+    const response = await fetch(
+      `https://api.themoviedb.org/3/movie/${movieId}?api_key=${localStorage.getItem('TMDb-Key')}&language=ko-KR`
+    );
+    selectedMovie.value = await response.json();
+  } catch (error) {
+    console.error('영화 상세 정보 로드 실패:', error);
+  }
 };
+
+// 모달 닫기
+const closeModal = () => {
+  selectedMovie.value = null;
+};
+
 
 // 초기 데이터 로드
 fetchPopularMovies(currentPage.value);
@@ -187,4 +211,6 @@ fetchPopularMovies(currentPage.value);
     padding-right: 1rem;
   }
 }
+
+
 </style>

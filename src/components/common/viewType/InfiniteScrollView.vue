@@ -7,7 +7,7 @@
         :key="movie.id"
         :movie="movie"
         @wishlist-updated="$emit('wishlist-updated', $event)"
-        @show-detail="$emit('show-detail', $event)"
+        @show-detail="handleShowDetail"
         class="transition-transform transform hover:scale-105"
       />
     </div>
@@ -46,6 +46,13 @@ const {
   fetchPopularMovies,
   loadMoreMovies
 } = useMovies();
+
+// 상세정보 표시 핸들러 추가
+const handleShowDetail = (movie) => {
+  // eslint-disable-next-line no-undef
+  emit('show-detail', movie.id);
+};
+
 
 const handleScroll = () => {
   // 무한 스크롤 로직
