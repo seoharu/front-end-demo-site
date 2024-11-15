@@ -58,6 +58,43 @@ export function useMovies() {
     }
   }
 
+  // 테이블 뷰용 여러 페이지 데이터 한번에 가져오기
+ const fetchMoviesForTableView = async (startPage = 1, pageCount = 5) => {
+   loading.value = true
+   try {
+     const requests = Array.from(
+       { length: pageCount },
+       (_, i) => api.get<MovieResponse>('/movie/popular', {
+         params: { page: startPage + i }
+       })
+     )
+
+     const responses = await Promise.all(requests)
+     const allResults = responses.flatMap(response => response.data.results)
+
+     movies.value = allResults
+     totalPages.value = Math.ceil(allResults.length / 20)
+     totalResults.value = allResults.length
+     currentPage.value = 1
+
+     return allResults
+   } catch (e) {
+     error.value = e instanceof Error ? e.message : '영화 정보를 불러오는데 실패했습니다.'
+     console.error('Error fetching movies for table view:', e)
+     return []
+   } finally {
+     loading.value = false
+   }
+ }
+  // 현재 페이지의 영화 목록 가져오기 (클라이언트 사이드 페이지네이션)
+ const getMoviesForPage = (page: number, itemsPerPage = 20) => {
+   const start = (page - 1) * itemsPerPage
+   const end = start + itemsPerPage
+   return movies.value.slice(start, end)
+ }
+
+
+
   // 무한 스크롤용 영화 추가 로드
   const loadMoreMovies = async (page: number = currentPage.value + 1) => {
     if (loading.value || page > totalPages.value) return
@@ -176,6 +213,8 @@ export function useMovies() {
     searchMovies,
     getMovieDetails,
     resetMovies,
+    fetchMoviesForTableView,
+    getMoviesForPage,
 
     // Computed
     hasMore,

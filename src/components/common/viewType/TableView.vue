@@ -1,22 +1,44 @@
 <template>
   <div ref="gridContainer" class="table-view">
     <!-- 그리드 레이아웃으로 영화 카드 배치 -->
-    <div :class="['grid', 'gap-4', 'p-4']" :style="{ gridTemplateColumns: `repeat(${rowSize}, 1fr)` }">
+    <div class="movie-grid">
       <MovieCard
-        v-for="movie in movies"
+        v-for="movie in displayedMovies"
         :key="movie.id"
         :movie="movie"
         @wishlist-updated="$emit('wishlist-updated')"
-        @show-detail="handleShowDetail"
+        @show-detail="$emit('show-detail', movie.id)"
       />
     </div>
 
-    <!-- 페이지네이션 컴포넌트 추가 -->
-    <PaginationNav
-      :current-page="currentPage"
-      :total-pages="totalPages"
-      @page-change="changePage"
-    />
+    <!-- 하단 페이지네이션 영역 -->
+    <div class="pagination-container">
+      <div class="navigation-buttons">
+        <button
+          @click="$emit('page-changed', 1)"
+          :disabled="currentPage === 1"
+          class="nav-btn"
+        >
+          <i class="fas fa-angle-double-left"></i>
+        </button>
+      </div>
+      <!-- 페이지네이션 컴포넌트 추가 -->
+      <PaginationNav
+        :current-page="currentPage"
+        :total-pages="totalPages"
+        :visible-pages="10"
+        @page-change="handlePageChange"
+      />
+      <div class="navigation-buttons">
+        <button
+          @click="$emit('page-changed', totalPages)"
+          :disabled="currentPage === totalPages"
+          class="nav-btn"
+        >
+          <i class="fas fa-angle-double-right"></i>
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -24,7 +46,7 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import MovieCard from "@/components/common/MovieCard.vue"
 import PaginationNav from "@/components/common/PaginationNav.vue"
-import { fetchMovies } from "@/utils/fetchMovies";
+// import { fetchMovies } from "@/utils/fetchMovies";
 
 const props = defineProps({
   movies: {
@@ -39,92 +61,144 @@ const props = defineProps({
     type: Number,
     required: true
   },
-  fetchUrl: {
-    type: String,
-    required: true
-  },
+  // fetchUrl: {
+  //   type: String,
+  //   required: true
+  // },
 });
 
 const emit = defineEmits(['page-changed', 'wishlist-updated', 'show-detail']);
 
-const gridContainer = ref(null);
-const rowSize = ref(4);
 const moviesPerPage = ref(20);
 const isMobile = ref(window.innerWidth <= 768);
 
-// 영화 데이터를 불러오는 함수 호출
-const loadMovies = async () => {
-  movies.value = await fetchMovies(props.fetchUrl, moviesPerPage.value);
-};
-
-// 페이지네이션 계산
-const movies = computed(() => {
-  const startIndex = (props.currentPage - 1) * moviesPerPage.value;
-  const endIndex = startIndex + moviesPerPage.value;
+// 현재 페이지에 표시할 영화들
+const displayedMovies = computed(() => {
+  const itemsPerPage = 10;
+  const startIndex = (props.currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
   return props.movies.slice(startIndex, endIndex);
 });
 
-// 페이지 변경 핸들러
-const changePage = (page) => {
-  if (page >= 1 && page <= props.totalPages) {
-    emit('page-changed', page);
-  }
-};
 
-// 창 크기 변경에 따른 레이아웃 계산
-const handleResize = () => {
-  isMobile.value = window.innerWidth <= 768;
-  calculateLayout();
-};
 
-const calculateLayout = () => {
-  if (gridContainer.value) {
-    const containerWidth = gridContainer.value.offsetWidth;
-    const movieCardWidth = isMobile.value ? 90 : 200; // 모바일과 데스크탑에 따른 카드 크기
-    const horizontalGap = isMobile.value ? 10 : 15;
-
-    rowSize.value = Math.floor(containerWidth / (movieCardWidth + horizontalGap));
-    moviesPerPage.value = rowSize.value * 3; // 예시로 3개의 행을 기준
-  }
-};
-
-// 상세정보 표시 핸들러 추가
-const handleShowDetail = (movie) => {
-  emit('show-detail', movie.id);
-};
-
-// 컴포넌트가 마운트되었을 때와 언마운트될 때 처리
-onMounted(() => {
-  loadMovies();
-  calculateLayout();
-  window.addEventListener('resize', handleResize);
-});
-
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', handleResize);
-});
 
 </script>
 
 <style scoped>
 .table-view {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
+  padding: 2rem;
+  min-height: calc(100vh - 64px);
 }
 
-.grid {
+.movie-grid {
   display: grid;
+  grid-template-columns: repeat(8, 1fr); /* 8열 그리드 */
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+/* 반응형 그리드 */
+@media (max-width: 1536px) {
+  .movie-grid {
+    grid-template-columns: repeat(6, 1fr); /* 6열 */
+  }
+}
+
+@media (max-width: 1280px) {
+  .movie-grid {
+    grid-template-columns: repeat(5, 1fr); /* 5열 */
+  }
+}
+
+@media (max-width: 1024px) {
+  .movie-grid {
+    grid-template-columns: repeat(4, 1fr); /* 4열 */
+  }
+}
+@media (max-width: 768px) {
+  .movie-grid {
+    grid-template-columns: repeat(3, 1fr); /* 3열 */
+  }
+}
+
+@media (max-width: 640px) {
+  .movie-grid {
+    grid-template-columns: repeat(2, 1fr); /* 2열 */
+  }
+}
+
+/* 페이지네이션 스타일 */
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding: 1rem;
+  background: grey;
+  border-radius: 8px;
+}
+
+.navigation-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.nav-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.nav-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.nav-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* MovieCard 스타일 */
+:deep(.movie-card) {
+  aspect-ratio: 2/3;
   width: 100%;
-  gap: 20px;
+  height: auto;
+  transition: transform 0.2s;
 }
 
-.movie-card {
-  transition: transform 0.3s ease-in-out;
+:deep(.movie-card:hover) {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
-.movie-card:hover {
-  transform: scale(1.05);
+/* 페이지네이션 컴포넌트 스타일 오버라이드 */
+:deep(.pagination-button) {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  margin: 0 0.25rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
 }
+
+:deep(.pagination-button:hover) {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+:deep(.pagination-button.active) {
+  background: #3b82f6;
+}
+
+:deep(.pagination-button:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 </style>

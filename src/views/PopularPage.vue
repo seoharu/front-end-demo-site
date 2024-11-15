@@ -17,7 +17,7 @@
       <!-- 뷰 타입에 따른 컨텐츠 표시 -->
       <TableView
         v-if="viewType === 'table'"
-        :movies="movies"
+          :movies="movies"
         :current-page="currentPage"
         :total-pages="totalPages"
         @page-changed="handlePageChange"
@@ -39,13 +39,13 @@
     <!-- 로딩 컴포넌트 -->
     <Loading
       :loading="loading"
-      :message="loadingMessage"
+      :message="'영화 정보를 불러오는 중입니다.'"
     />
     <!-- 영화 상세정보 모달 추가 -->
     <MovieDetail
       v-if="selectedMovie"
       :movie="selectedMovie"
-      @close="closeModal"
+      @close="selectedMovie = null"
       @wishlist-updated="handleWishlistUpdate"
     />
   </div>
@@ -53,7 +53,7 @@
 </template>
 
 <script setup>
-import {ref, watch} from 'vue';
+import {ref, onMounted} from 'vue';
 import PageHeader from '@/components/layout/PageHeader.vue';
 import Loading from '@/components/common/Loading.vue';
 import ViewToggle from '@/components/common/viewType/ViewToggle.vue';
@@ -61,7 +61,6 @@ import TableView from '@/components/common/viewType/TableView.vue';
 import InfiniteScrollView from "@/components/common/viewType/InfiniteScrollView.vue";
 import MovieDetail from '@/components/movie/MovieDetailModal.vue';
 import {useMovies} from '@/composables/useMovies';
-import {usePagination} from '@/composables/usePagination';
 import {useWishlist} from '@/composables/useWishlist';
 import {useAuth} from '@/composables/useAuth';
 
@@ -71,41 +70,46 @@ checkAuth();
 
 // 상태 관리
 const viewType = ref('table');
-const loading = ref(false);
-const loadingMessage = ref('영화 정보를 불러오는 중...');
+const selectedMovie = ref(null);
 const allMovies = ref([]); // 무한 스크롤용 전체 영화 목록
 
 const {
   movies,
-  fetchPopularMovies,
-  error
-} = useMovies();
-
-const {
+  loading,
+  error,
   currentPage,
   totalPages,
-  handlePageChange
-} = usePagination();
+  hasMore,
+  fetchPopularMovies,
+  fetchMoviesForTableView,
+  getMoviesForPage,
+  loadMoreMovies
+} = useMovies();
+
 
 const { updateWishlist } = useWishlist();
 
-// 무한 스크롤 관련 상태
-const hasMore = ref(true);
-
 // 뷰 타입 변경 핸들러
 const handleViewTypeChange = async (newType) => {
-  viewType.value = newType;
+ viewType.value = newType;
 
-  // 뷰 타입 변경 시 초기화
-  currentPage.value = 1;
-  allMovies.value = [];
-  hasMore.value = true;
+ if (newType === 'table') {
+   // 테이블 뷰일 때는 한 번에 100개(5페이지) 데이터를 가져옴
+   await fetchMoviesForTableView(1, 5);
+ } else {
+   // 무한 스크롤일 때는 기존 방식대로
+   allMovies.value = [];
+   await loadMoreMovies(1);
+ }
+};
 
-  if (newType === 'table') {
-    await fetchPopularMovies(1);
-  } else {
-    await handleLoadMore(); // 첫 페이지 데이터 로드
+// 페이지 변경 핸들러
+const handlePageChange = async (page) => {
+  if (viewType.value === 'table') {
+    currentPage.value = page;
+    movies.value = getMoviesForPage(page);
   }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
 // 무한 스크롤 로드 더 보기 핸들러
@@ -144,34 +148,13 @@ const handleLoadMore = async () => {
   }
 };
 
-// 페이지 변경 감지 및 데이터 로드 (테이블 뷰용)
-watch(currentPage, async (newPage) => {
-  if (viewType.value === 'table') {
-    await fetchPopularMovies(newPage);
-  }
-});
 
-// 에러 감지
-watch(error, (newError) => {
-  if (newError) {
-    console.error('Error:', newError);
-  }
-});
-
-// movies 변경 감지
-watch(movies, (newMovies) => {
-  if (viewType.value === 'table') {
-    // 테이블 뷰일 때는 movies를 직접 사용
-    allMovies.value = newMovies;
-  }
-}, { immediate: true });
 
 // 위시리스트 업데이트 핸들러
 const handleWishlistUpdate = (movie) => {
   updateWishlist(movie);
 };
 
-const selectedMovie = ref(null);
 // 영화 상세 정보 표시 핸들러
 const handleShowDetail = async (movieId) => {
   try {
@@ -185,14 +168,15 @@ const handleShowDetail = async (movieId) => {
   }
 };
 
-// 모달 닫기
-const closeModal = () => {
-  selectedMovie.value = null;
-};
-
-
 // 초기 데이터 로드
-fetchPopularMovies(currentPage.value);
+onMounted(async () => {
+  if (viewType.value === 'table') {
+    await fetchMoviesForTableView(1, 5);
+  } else {
+    await fetchPopularMovies(1);
+  }
+});
+
 </script>
 
 <style scoped>
