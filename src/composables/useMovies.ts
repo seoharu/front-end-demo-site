@@ -109,20 +109,19 @@ export function useMovies() {
   }
 
   // 무한 스크롤용 영화 추가 로드
-  const loadMoreMovies = async () => {
-    if (loading.value || !hasMore.value) return
+  const loadMoreMovies = async (page: number = currentPage.value + 1) => {
+    if (loading.value || page > totalPages.value) return
 
+    loading.value = true
     try {
-      const nextPage = currentPage.value + 1
       const response = await api.get<MovieResponse>('/movie/popular', {
-        params: { page: nextPage }
+        params: { page }
       })
-
       if (response.data) {
         movies.value = [...movies.value, ...response.data.results]
         totalPages.value = response.data.total_pages
         totalResults.value = response.data.total_results
-        currentPage.value = nextPage
+        currentPage.value = response.data.page
       }
     } catch (e) {
       error.value = e instanceof Error ? e.message : '추가 영화 정보를 불러오는데 실패했습니다.'
