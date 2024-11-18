@@ -74,44 +74,53 @@ const isMobile = ref(window.innerWidth <= 768);
 
 <style scoped>
 .table-view {
-  padding: 2rem;
-  min-height: calc(100vh - 64px);
+  padding: 1rem;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
 }
 
 .movie-grid {
   display: grid;
-  grid-template-columns: repeat(8, 1fr); /* 8열 그리드 */
+  grid-template-columns: repeat(5, 1fr); /* 5열 그리드 */
   gap: 1rem;
   margin-bottom: 2rem;
 }
 
 /* 반응형 그리드 */
-@media (max-width: 1536px) {
-  .movie-grid {
-    grid-template-columns: repeat(6, 1fr); /* 6열 */
-  }
-}
-
-@media (max-width: 1280px) {
-  .movie-grid {
-    grid-template-columns: repeat(5, 1fr); /* 5열 */
-  }
-}
-
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
   .movie-grid {
     grid-template-columns: repeat(4, 1fr); /* 4열 */
   }
-}
-@media (max-width: 768px) {
-  .movie-grid {
-    grid-template-columns: repeat(3, 1fr); /* 3열 */
+  :deep(.movie-card) {
+    max-width: 200px;
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 960px) {
+  .movie-grid {
+    grid-template-columns: repeat(3, 1fr); /* 3열 */
+  }
+  :deep(.movie-card) {
+    max-width: 180px;
+  }
+}
+
+@media (max-width: 720px) {
   .movie-grid {
     grid-template-columns: repeat(2, 1fr); /* 2열 */
+  }
+  :deep(.movie-card) {
+    max-width: 160px;
+  }
+}
+
+@media (max-width: 480px) {
+  .movie-grid {
+    grid-template-columns: repeat(1, 1fr); /* 1열 */
+  }
+  :deep(.movie-card) {
+    max-width: 200px;
   }
 }
 
@@ -121,7 +130,7 @@ const isMobile = ref(window.innerWidth <= 768);
   justify-content: center;
   align-items: center;
   gap: 1rem;
-  margin-top: 2rem;
+  margin-top: 7rem;
   padding: 1rem;
   background: grey;
   border-radius: 8px;
@@ -152,16 +161,24 @@ const isMobile = ref(window.innerWidth <= 768);
 
 /* MovieCard 스타일 */
 :deep(.movie-card) {
-  aspect-ratio: 2/3;
   width: 100%;
-  height: auto;
+  aspect-ratio: 2/3; /* 포스터 비율 유지 */
+  max-width: 240px; /* 최대 너비 제한 */
+  margin: 0 auto; /* 카드 중앙 정렬 */
+}
+
+:deep(.movie-card img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
   transition: transform 0.2s;
 }
 
-:deep(.movie-card:hover) {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+:deep(.movie-card:hover img) {
+  transform: scale(1.05);
 }
+
 
 /* 페이지네이션 컴포넌트 스타일 오버라이드 */
 :deep(.pagination-button) {
