@@ -1,62 +1,3 @@
-<script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
-import MovieCard from "@/components/common/MovieCard.vue";
-import { useMovies } from "@/composables/useMovies";
-
-const emit = defineEmits(['wishlist-updated', 'show-detail']);
-const showScrollTop = ref(false);
-
-// Props 정의
-const props = defineProps({
-  movies: {
-    type: Array,
-    required: true
-  },
-  loading: {
-    type: Boolean,
-    default: false
-  },
-  hasMore: {
-    type: Boolean,
-    default: true
-  }
-});
-
-// 스크롤 핸들러
-const handleScroll = () => {
-  showScrollTop.value = window.scrollY > 500;
-
-  // 무한 스크롤 로직
-  const scrollPosition = window.scrollY + window.innerHeight;
-  const documentHeight = document.documentElement.scrollHeight;
-
-  if (scrollPosition >= documentHeight - 200 && props.hasMore && !props.loading) {
-    emit('load-more');
-  }
-};
-
-// 맨 위로 스크롤
-const scrollToTop = () => {
-  window.scrollTo({
-    top: 0,
-    behavior: 'smooth'
-  });
-};
-
-const handleShowDetail = (movie) => {
-  emit('show-detail', movie.id);
-};
-
-// 이벤트 리스너 설정/해제
-onMounted(() => {
-  window.addEventListener('scroll', handleScroll);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll);
-});
-</script>
-
 <template>
   <div class="infinite-scroll-view">
     <!-- 영화 그리드 -->
@@ -98,11 +39,66 @@ onUnmounted(() => {
   </div>
 </template>
 
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+import MovieCard from "@/components/common/MovieCard.vue";
+import { useMovies } from "@/composables/useMovies";
+
+const emit = defineEmits(['wishlist-updated', 'show-detail']);
+const showScrollTop = ref(false);
+
+// useMovies composable 사용
+const {
+  movies,
+  loading,
+  hasMore,
+  fetchPopularMovies,
+  loadMoreMovies
+} = useMovies();
+
+// 스크롤 핸들러
+const handleScroll = () => {
+  showScrollTop.value = window.scrollY > 500;
+
+  // 무한 스크롤 로직
+  const scrollPosition = window.scrollY + window.innerHeight;
+  const documentHeight = document.documentElement.scrollHeight;
+
+  if (scrollPosition >= documentHeight - 200 && hasMore.value && !loading.value) {
+    loadMoreMovies();
+  }
+};
+
+// 맨 위로 스크롤
+const scrollToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+};
+
+const handleShowDetail = (movie) => {
+  emit('show-detail', movie.id);
+};
+
+// 초기 데이터 로드 및 이벤트 리스너 설정
+onMounted(() => {
+  fetchPopularMovies();
+  window.addEventListener('scroll', handleScroll);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll);
+});
+</script>
+
 <style scoped>
 .infinite-scroll-view {
   min-height: 100vh;
   padding: 24px;
   background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+  max-width: 2000px;
+  margin: 0 auto;
 }
 
 .movie-grid {
@@ -197,13 +193,6 @@ onUnmounted(() => {
   transform: scale(1.05);
 }
 
-/* 컨테이너 최대 너비 설정 */
-.infinite-scroll-view {
-  max-width: 2000px;
-  margin: 0 auto;
-}
-
-/* 나머지 스타일은 동일하게 유지 */
 .loading-container {
   display: flex;
   flex-direction: column;
