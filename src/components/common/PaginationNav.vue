@@ -55,7 +55,6 @@
       <i class="fas fa-chevron-right"></i>
     </button>
   </div>
-
 </template>
 
 <script setup>
@@ -130,4 +129,3 @@ const goToPage = (page) => {
   @apply bg-blue-500 text-white hover:bg-blue-600;
 }
 </style>
-

@@ -1,4 +1,3 @@
-// composables/useInfiniteScroll.ts
 import { ref, onMounted, onUnmounted } from 'vue';
 
 interface InfiniteScrollOptions {
@@ -50,6 +49,8 @@ export const useInfiniteScroll = (
       try {
         loading.value = true;
         await loadMore();
+        // 데이터가 더 있는지 확인하고 `hasMore` 갱신
+        hasMore.value = scrollPosition + windowHeight < documentHeight;
       } catch (err) {
         error.value = err as Error;
         console.error('Infinite scroll error:', err);
