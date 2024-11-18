@@ -8,8 +8,32 @@
         :movie="movie"
         @wishlist-updated="$emit('wishlist-updated', $event)"
         @show-detail="handleShowDetail"
+        @click="showPosterOverlay(movie)"
         class="movie-card-animation"
       />
+    </div>
+
+    <!-- 포스터 오버레이 -->
+    <div
+      v-if="selectedMovie"
+      class="poster-overlay"
+      :class="{ show: showOverlay }"
+      @click="closePosterOverlay"
+    >
+      <div class="poster-content" @click.stop>
+        <img
+          :src="`https://image.tmdb.org/t/p/original${selectedMovie.poster_path}`"
+          :alt="selectedMovie.title"
+        />
+        <div class="poster-info">
+          <h2>{{ selectedMovie.title }}</h2>
+          <p class="release-date">개봉일: {{ selectedMovie.release_date }}</p>
+          <p class="overview">{{ selectedMovie.overview }}</p>
+        </div>
+        <button class="close-button" @click="closePosterOverlay">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
     </div>
 
     <!-- 로딩 스피너 -->
@@ -81,15 +105,46 @@ const handleShowDetail = (movie) => {
   emit('show-detail', movie.id);
 };
 
+// 포스터 오버레이 관련 상태
+const selectedMovie = ref(null);
+const showOverlay = ref(false);
+
+// 포스터 오버레이 표시/숨김
+const showPosterOverlay = (movie) => {
+  selectedMovie.value = movie;
+  showOverlay.value = true;
+  document.body.style.overflow = 'hidden';
+};
+
+const closePosterOverlay = () => {
+  showOverlay.value = false;
+  document.body.style.overflow = '';
+  setTimeout(() => {
+    selectedMovie.value = null;
+  }, 300);
+};
+
+// ESC 키로 오버레이 닫기
+const handleKeyDown = (e) => {
+  if (e.key === 'Escape' && showOverlay.value) {
+    closePosterOverlay();
+  }
+};
+
 // 초기 데이터 로드 및 이벤트 리스너 설정
 onMounted(() => {
   fetchPopularMovies();
   window.addEventListener('scroll', handleScroll);
+  window.addEventListener('keydown', handleKeyDown);
 });
 
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll);
+  window.removeEventListener('keydown', handleKeyDown);
+  document.body.style.overflow = '';
 });
+
+
 </script>
 
 <style scoped>
@@ -101,9 +156,32 @@ onUnmounted(() => {
   margin: 0 auto;
 }
 
+:deep(.movie-card) {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  cursor: pointer;
+}
+
+:deep(.movie-card img) {
+  width: 100%;
+  display: block;
+  aspect-ratio: 2/3;
+  object-fit: cover;
+}
+
+.movie-card-animation:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+}
+
+
 .movie-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 24px;
   padding: 20px;
   margin-bottom: 32px;
@@ -160,37 +238,93 @@ onUnmounted(() => {
   }
 }
 
-/* MovieCard 스타일 개선 */
-:deep(.movie-card) {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  border-radius: 12px;
-  overflow: hidden;
-  background-color: white;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-:deep(.movie-card img) {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  aspect-ratio: 2/3;
+/* 이미지 컨테이너에 대한 hover 효과 */
+:deep(.movie-card:hover img) {
+  transform: scale(1.05);
   transition: transform 0.3s ease;
 }
 
-.movie-card-animation {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  height: 100%;
+/* 포스터 오버레이 스타일 */
+.poster-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
 }
 
-.movie-card-animation:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+.poster-overlay.show {
+  opacity: 1;
+  visibility: visible;
 }
 
-:deep(.movie-card:hover img) {
-  transform: scale(1.05);
+.poster-content {
+  position: relative;
+  display: flex;
+  max-width: 90vw;
+  max-height: 90vh;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+}
+
+.poster-content img {
+  max-height: 90vh;
+  object-fit: contain;
+}
+
+.poster-info {
+  padding: 30px;
+  min-width: 300px;
+  max-width: 400px;
+  overflow-y: auto;
+}
+
+.poster-info h2 {
+  font-size: 24px;
+  margin-bottom: 16px;
+  color: #333;
+}
+
+.release-date {
+  color: #666;
+  margin-bottom: 16px;
+}
+
+.overview {
+  line-height: 1.6;
+  color: #444;
+}
+
+.close-button {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.5);
+  border: none;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.close-button:hover {
+  background: rgba(0,0,0,0.7);
+  transform: scale(1.1);
 }
 
 .loading-container {
@@ -250,5 +384,18 @@ onUnmounted(() => {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+
+@media (max-width: 768px) {
+  .poster-content {
+    flex-direction: column;
+  }
+
+  .poster-info {
+    min-width: unset;
+    max-width: unset;
+    width: 100%;
+  }
 }
 </style>
