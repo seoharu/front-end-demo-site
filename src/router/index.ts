@@ -24,4 +24,14 @@ const router = createRouter({
   routes
 })
 
+// Navigation guard
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = localStorage.getItem('TMDb-Key')
+  if (to.name !== 'Login' && !isAuthenticated) {
+    next({ name: 'Login' })
+  } else {
+    next()
+  }
+})
+
 export default router

@@ -3,47 +3,43 @@
     <!-- 그리드 레이아웃으로 영화 카드 배치 -->
     <div class="movie-grid">
       <MovieCard
-        v-for="movie in displayedMovies"
+        v-for="movie in movies"
         :key="movie.id"
         :movie="movie"
-        @wishlist-updated="$emit('wishlist-updated')"
-        @show-detail="$emit('show-detail', movie.id)"
+        @wishlist-updated="$emit('wishlist-updated', $event)"
+        @show-detail="$emit('show-detail', $event)"
       />
     </div>
 
-    <!-- 하단 페이지네이션 영역 -->
-    <div class="pagination-container">
-      <div class="navigation-buttons">
-        <button
-          @click="$emit('page-changed', 1)"
-          :disabled="currentPage === 1"
-          class="nav-btn"
-        >
-          <i class="fas fa-angle-double-left"></i>
-        </button>
-      </div>
-      <!-- 페이지네이션 컴포넌트 추가 -->
+    <!-- 페이지네이션 -->
+    <div v-if="movies.length > 0" class="pagination-container">
+      <button
+        @click="$emit('page-changed', 1)"
+        :disabled="currentPage === 1"
+        class="nav-btn"
+      >
+        <i class="fas fa-angle-double-left"></i>
+      </button>
+
       <PaginationNav
         :current-page="currentPage"
         :total-pages="totalPages"
-        :visible-pages="10"
-        @page-change="handlePageChange"
+        @page-change="page => $emit('page-changed', page)"
       />
-      <div class="navigation-buttons">
-        <button
-          @click="$emit('page-changed', totalPages)"
-          :disabled="currentPage === totalPages"
-          class="nav-btn"
-        >
-          <i class="fas fa-angle-double-right"></i>
-        </button>
-      </div>
+
+      <button
+        @click="$emit('page-changed', totalPages)"
+        :disabled="currentPage === totalPages"
+        class="nav-btn"
+      >
+        <i class="fas fa-angle-double-right"></i>
+      </button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { ref } from 'vue';
 import MovieCard from "@/components/common/MovieCard.vue"
 import PaginationNav from "@/components/common/PaginationNav.vue"
 // import { fetchMovies } from "@/utils/fetchMovies";
@@ -67,19 +63,10 @@ const props = defineProps({
   // },
 });
 
-const emit = defineEmits(['page-changed', 'wishlist-updated', 'show-detail']);
+defineEmits(['page-changed', 'wishlist-updated', 'show-detail']);
 
 const moviesPerPage = ref(20);
 const isMobile = ref(window.innerWidth <= 768);
-
-// 현재 페이지에 표시할 영화들
-const displayedMovies = computed(() => {
-  const itemsPerPage = 10;
-  const startIndex = (props.currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  return props.movies.slice(startIndex, endIndex);
-});
-
 
 
 

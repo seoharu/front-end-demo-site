@@ -17,13 +17,14 @@
       <!-- 뷰 타입에 따른 컨텐츠 표시 -->
       <TableView
         v-if="viewType === 'table'"
-          :movies="movies"
+        :movies="movies"
         :current-page="currentPage"
         :total-pages="totalPages"
         @page-changed="handlePageChange"
         @wishlist-updated="handleWishlistUpdate"
         @show-detail="handleShowDetail"
       />
+
 
       <InfiniteScrollView
         v-else
@@ -53,7 +54,7 @@
 </template>
 
 <script setup>
-import {ref, onMounted} from 'vue';
+import {ref, onMounted, watch } from 'vue';
 import PageHeader from '@/components/layout/PageHeader.vue';
 import Loading from '@/components/common/Loading.vue';
 import ViewToggle from '@/components/common/viewType/ViewToggle.vue';
@@ -76,40 +77,44 @@ const allMovies = ref([]); // 무한 스크롤용 전체 영화 목록
 const {
   movies,
   loading,
-  error,
   currentPage,
   totalPages,
   hasMore,
   fetchPopularMovies,
-  fetchMoviesForTableView,
-  getMoviesForPage,
-  loadMoreMovies
 } = useMovies();
 
 
 const { updateWishlist } = useWishlist();
+// 페이지 변경 감지
+watch(currentPage, async (newPage) => {
+  console.log('Page changed to:', newPage)
+})
 
 // 뷰 타입 변경 핸들러
 const handleViewTypeChange = async (newType) => {
- viewType.value = newType;
-
- if (newType === 'table') {
-   // 테이블 뷰일 때는 한 번에 100개(5페이지) 데이터를 가져옴
-   await fetchMoviesForTableView(1, 5);
- } else {
-   // 무한 스크롤일 때는 기존 방식대로
-   allMovies.value = [];
-   await loadMoreMovies(1);
- }
+  viewType.value = newType;
+  if (newType === 'table') {
+    await fetchPopularMovies(1);
+  } else {
+    allMovies.value = [];
+    await handleLoadMore();
+  }
 };
 
 // 페이지 변경 핸들러
 const handlePageChange = async (page) => {
-  if (viewType.value === 'table') {
-    currentPage.value = page;
-    movies.value = getMoviesForPage(page);
+ console.log('Changing to page:', page)
+  if (page === currentPage.value) return
+
+  try {
+    loading.value = true
+    await fetchPopularMovies(page)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  } catch (err) {
+    console.error('Failed to change page:', err)
+  } finally {
+    loading.value = false
   }
-  window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
 // 무한 스크롤 로드 더 보기 핸들러
@@ -170,12 +175,12 @@ const handleShowDetail = async (movieId) => {
 
 // 초기 데이터 로드
 onMounted(async () => {
-  if (viewType.value === 'table') {
-    await fetchMoviesForTableView(1, 5);
-  } else {
-    await fetchPopularMovies(1);
+  try {
+    await fetchPopularMovies(1)
+  } catch (err) {
+    console.error('Failed to load initial movies:', err)
   }
-});
+})
 
 </script>
 
