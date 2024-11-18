@@ -74,7 +74,8 @@ import PaginationNav from "@/components/common/PaginationNav.vue"
 const props = defineProps({
   movies: {
     type: Array,
-    required: true
+    required: true,
+    default: () => []  // 기본값 설정
   },
   currentPage: {
     type: Number,
