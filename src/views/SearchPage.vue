@@ -1,38 +1,53 @@
 <template>
   <div class="filter-movies-container">
-    <!-- 헤더 컴포넌트 -->
     <PageHeader />
 
     <div class="search-page">
-      <!-- 필터 섹션 -->
       <div class="filters-section">
         <div class="filters-container">
-          <GenreFilter @change="handleGenreChange" />
-          <RatingFilter @change="handleRatingChange" />
-          <LanguageFilter @change="handleLanguageChange" />
-          <YearFilter @change="handleYearChange" />
-          <SortFilter @change="handleSortChange" />
+          <GenreFilter
+            ref="genreFilterRef"
+            :selected-genre="filters.genre"
+            @change="value => updateFilter('genre', value)"
+          />
+          <RatingFilter
+            ref="ratingFilterRef"
+            :selected-rating="filters.rating"
+            @change="value => updateFilter('rating', value)"
+          />
+          <LanguageFilter
+            ref="languageFilterRef"
+            :selected-language="filters.language"
+            @change="value => updateFilter('language', value)"
+          />
+          <YearFilter
+            ref="yearFilterRef"
+            :selected-year="filters.year"
+            @change="value => updateFilter('year', value)"
+          />
+          <SortFilter
+            ref="sortFilterRef"
+            :selected-sort="filters.sort"
+            @change="value => updateFilter('sort', value)"
+          />
 
-          <button class="reset-btn" @click="resetFilters">
+          <button class="reset-btn" @click="handleReset">
             <i class="fas fa-undo"></i>
             필터 초기화
           </button>
         </div>
 
-        <ViewToggle :initialView="viewType" @viewType-changed="changeViewType" />
-
-
+        <ViewToggle :initial-view="viewType" @viewType-changed="changeViewType" />
       </div>
-      <!-- 로딩 인디케이터 -->
+
       <div v-if="loading" class="loading-container">
         <div class="loading-spinner"></div>
       </div>
 
-      <!-- 영화 목록 뷰 -->
       <div v-else>
         <div class="table-view" v-if="viewType === 'table'">
           <TableView
-            :movies="filteredMovies"
+            :movies="processedMovies"
             :current-page="currentPage"
             :total-pages="totalPages"
             @page-changed="handlePageChange"
@@ -43,7 +58,7 @@
 
         <InfiniteScrollView
           v-else
-          :movies="filteredMovies"
+          :movies="processedMovies"
           :loading="loadingMore"
           @load-more="loadMoreMovies"
           @wishlist-updated="handleWishlistUpdate"
@@ -51,8 +66,7 @@
         />
       </div>
 
-      <!-- 결과 없음 메시지 -->
-      <div v-if="!loading && filteredMovies.length === 0" class="no-results">
+      <div v-if="!loading && processedMovies.length === 0" class="no-results">
         <i class="fas fa-film"></i>
         <p>검색 결과가 없습니다</p>
       </div>
@@ -61,17 +75,18 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
+import { useFiltering } from '@/composables/useFiltering'
 import TableView from '@/components/common/viewType/TableView.vue'
 import InfiniteScrollView from '@/components/common/viewType/InfiniteScrollView.vue'
 import ViewToggle from '@/components/common/viewType/ViewToggle.vue'
 import movieService from '@/services/movieService'
 import GenreFilter from '@/components/movieFilters/GenreFilter.vue'
-import RatingFilter from '@/components/movieFilters/RatingFilter.vue';
+import RatingFilter from '@/components/movieFilters/RatingFilter.vue'
 import LanguageFilter from '@/components/movieFilters/LanguageFilter.vue'
 import YearFilter from '@/components/movieFilters/YearFilter.vue'
 import SortFilter from '@/components/movieFilters/SortFilter.vue'
-import PageHeader from "@/components/layout/PageHeader.vue";
+import PageHeader from "@/components/layout/PageHeader.vue"
 
 export default {
   name: 'SearchPage',
@@ -88,153 +103,147 @@ export default {
     SortFilter,
   },
 
-  data() {
-    return {
-      viewType: localStorage.getItem('preferredViewType') || 'table',
-      movies: [],
-      filteredMovies: [],
-      currentPage: 1,
-      totalPages: 1,
-      loading: false,
-      selectedGenre: null,
-      selectedRating: null,
-      selectedLanguage: '',
-      selectedYear: '',
-      selectedSort: 'popularity.desc',
-    }
-  },
-  computed: {
-    filterParams() {
-      return {
-        language: this.selectedLanguage,
-        year: this.selectedYear,
-        sort_by: this.selectedSort,
-        genre: this.selectedGenre,
-        vote_average: this.selectedRating
-      }
-    }
-  },
+  setup() {
+    const {
+      filters,
+      updateFilter,
+      resetFilters,
+      filterMovies,
+      sortMovies,
+      getFilterParams
+    } = useFiltering()
 
-  methods: {
-    async loadMovies(page = 1) {
+    const viewType = ref(localStorage.getItem('preferredViewType') || 'table')
+    const movies = ref([])
+    const currentPage = ref(1)
+    const totalPages = ref(1)
+    const loading = ref(false)
+    const loadingMore = ref(false)
+
+    const genreFilterRef = ref(null)
+    const ratingFilterRef = ref(null)
+    const languageFilterRef = ref(null)
+    const yearFilterRef = ref(null)
+    const sortFilterRef = ref(null)
+
+    // 필터링과 정렬이 적용된 영화 목록
+    const processedMovies = computed(() => {
+      const filtered = filterMovies(movies.value)
+      return sortMovies(filtered)
+    })
+
+    const loadMovies = async (page = 1, isLoadMore = false) => {
       try {
-        this.loading = true
-        const response = await movieService.getMovies(page, this.filterParams)
+        if (!isLoadMore) {
+          loading.value = true
+        }
+        loadingMore.value = isLoadMore
+
+        // getFilterParams 값 확인
+        console.log('Filter params:', getFilterParams.value)
+
+        const response = await movieService.getMovies(page, getFilterParams.value)
+        console.log('API response:', response)
 
         if (response?.data) {
           if (page === 1) {
-            this.movies = response.data.results
+            movies.value = response.data.results
           } else {
-            this.movies = [...this.movies, ...response.data.results]
+            movies.value = [...movies.value, ...response.data.results]
           }
-          this.filteredMovies = [...this.movies]
-          this.totalPages = response.data.total_pages
+          totalPages.value = response.data.total_pages
         }
       } catch (error) {
         console.error('영화 로딩 실패:', error)
       } finally {
-        this.loading = false
-        this.loadingMore = false
+        loading.value = false
+        loadingMore.value = false
       }
-    },
-    async loadMoreMovies() {
-      if (this.currentPage < this.totalPages && !this.loadingMore) {
-        this.loadingMore = true
-        this.currentPage++
-        await this.loadMovies(this.currentPage)
-      }
-    },
+    }
 
-    handlePageChange(page) {
-      this.currentPage = page
-      this.loadMovies(page)
+    const handlePageChange = (page) => {
+      currentPage.value = page
+      loadMovies(page)
       window.scrollTo({ top: 0, behavior: 'smooth' })
-    },
+    }
 
-    handleGenreChange(value) {
-      console.log('Selected genre:', value) // 디버깅용
-      this.selectedGenre = value === '' ? null : Number(value)
-      this.applyFilters()
-    },
-    handleRatingChange(value) {
-      this.selectedRating = value;
-      this.applyFilters();
-    },
-    handleLanguageChange(value) {
-      this.selectedLanguage = value
-      this.resetPagination()
-    },
+    const loadMoreMovies = async () => {
+      if (currentPage.value < totalPages.value && !loadingMore.value) {
+        currentPage.value++
+        await loadMovies(currentPage.value, true)
+      }
+    }
 
-    handleYearChange(value) {
-      this.selectedYear = value
-      this.resetPagination()
-    },
-
-    handleSortChange(value) {
-      this.selectedSort = value
-      this.resetPagination()
-    },
-
-    applyFilters() {
-      console.log('Applying filters with genre:', this.selectedGenre, 'and rating:', this.selectedRating);
-
-      if (!this.selectedGenre && !this.selectedRating) {
-        this.filteredMovies = [...this.movies];
-        return;
+    const handleReset = async () => {
+      // 각 컴포넌트의 내부 상태 직접 초기화
+      if (genreFilterRef.value) {
+        genreFilterRef.value.selectedGenre = ''
+      }
+      if (ratingFilterRef.value) {
+        ratingFilterRef.value.selectedRating = ''
+      }
+      if (languageFilterRef.value) {
+        languageFilterRef.value.selectedLanguage = ''
+      }
+      if (yearFilterRef.value) {
+        yearFilterRef.value.selectedYear = ''
+      }
+      if (sortFilterRef.value) {
+        sortFilterRef.value.selectedSort = 'popularity.desc'
       }
 
-      this.filteredMovies = this.movies.filter(movie => {
-        const genreMatch = !this.selectedGenre || (movie.genre_ids && movie.genre_ids.includes(Number(this.selectedGenre)));
-        const ratingMatch = !this.selectedRating || (movie.vote_average && movie.vote_average >= Number(this.selectedRating));
+      // filters 상태 초기화
+      resetFilters()
 
-        console.log('Movie:', movie.title, 'Vote Average:', movie.vote_average, 'Selected Rating:', this.selectedRating, 'Rating Match:', ratingMatch);
-        console.log('Checking movie:', movie.id, 'genres:', movie.genre_ids, 'rating:', movie.vote_average);
-        console.log('Movie:', movie.title, 'Vote Average:', movie.vote_average, 'Selected Rating:', this.selectedRating);
-        return genreMatch && ratingMatch;
-      });
+      // 데이터 리로드
+      currentPage.value = 1
+      loadMovies(1)
+    };
 
-      console.log('Filtered movies count:', this.filteredMovies.length);
-    },
-    resetPagination() {
-      this.currentPage = 1
-      this.loadMovies()
-    },
-    resetFilters() {
-      this.selectedGenre = null
-      this.selectedRating = null;
-      this.selectedLanguage = ''
-      this.selectedYear = ''
-      this.selectedSort = 'popularity.desc'
-      this.resetPagination()
-      this.filteredMovies = [...this.movies];
-    },
-
-    changeViewType(view) {
-      this.viewType = view;
+    const changeViewType = (view) => {
+      viewType.value = view
       localStorage.setItem('preferredViewType', view)
-    },
+    }
 
-    handleWishlistUpdate(movie) {
-      // 위시리스트 업데이트 처리
-      console.log('Wishlist updated:', movie);
-    },
+    const handleWishlistUpdate = (movie) => {
+      console.log('Wishlist updated:', movie)
+    }
 
-    handleShowDetail(movieId) {
-      // 영화 상세 정보 표시 처리
-      console.log('Show detail for movie:', movieId);
-    },
-  },
+    const handleShowDetail = (movieId) => {
+      console.log('Show detail for movie:', movieId)
+    }
 
+    // 초기 데이터 로드
+    onMounted(() => {
+      loadMovies()
+    })
 
-  async created() {
-    await this.loadMovies()
-  },
-  watch: {
-    filterParams: {
-      handler() {
-        this.resetPagination()
-      },
-      deep: true
+    return {
+      // 상태
+      viewType,
+      currentPage,
+      totalPages,
+      loading,
+      loadingMore,
+      processedMovies,
+
+      // useFiltering에서 가져온 것들
+      filters,
+      updateFilter,
+
+      // 메서드
+      loadMovies,
+      loadMoreMovies,
+      handlePageChange,
+      genreFilterRef,
+      ratingFilterRef,
+      languageFilterRef,
+      yearFilterRef,
+      sortFilterRef,
+      handleReset,
+      changeViewType,
+      handleWishlistUpdate,
+      handleShowDetail
     }
   }
 }
@@ -244,6 +253,7 @@ export default {
 .filter-movies-container {
   min-height: 100vh;
 }
+
 .search-page {
   padding: 2rem;
   background: linear-gradient(135deg, #1f1f1f 0%, #2c2c2c 100%);
@@ -251,7 +261,7 @@ export default {
 
 .filters-section {
   position: sticky;
-  top:95px;
+  top: 95px;
   z-index: 10;
   backdrop-filter: blur(10px);
 }
@@ -281,7 +291,6 @@ export default {
   transition: all 0.3s ease;
   font-weight: 600;
   box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3);
-  animation: fadeIn 0.3s ease-out;
   margin-top: 30px;
 }
 
@@ -294,10 +303,6 @@ export default {
   transform: translateY(1px);
 }
 
-.view-toggle-container {
-  display: flex;
-  width: 100px !important;
-}
 .table-view {
   margin-top: 50px !important;
 }
