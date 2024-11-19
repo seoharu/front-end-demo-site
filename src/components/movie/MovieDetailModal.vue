@@ -1,4 +1,4 @@
-```vue
+
 <template>
   <div class="modal-container" @click.self="$emit('close')">
     <div class="modal-content">
@@ -36,6 +36,13 @@ const formatRating = (rating) => {
   if (rating === undefined || rating === null) return 'N/A';
   return Number(rating).toFixed(1);
 };
+
+// 디버깅을 위한 watch 추가
+import { watch } from 'vue';
+watch(() => props.movie, (newVal) => {
+  console.log('모달 movie prop 변경됨:', newVal);
+});
+
 </script>
 
 <style scoped>
@@ -131,4 +138,3 @@ h2 {
   }
 }
 </style>
-```
