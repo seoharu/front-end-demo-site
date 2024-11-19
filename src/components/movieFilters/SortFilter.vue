@@ -1,33 +1,39 @@
 <template>
   <div class="filter-group">
     <label class="filter-label">정렬</label>
-    <select v-model="sortBy" @change="$emit('change', sortBy)" class="filter-select">
-      <option value="popularity.desc">인기도 높은순</option>
-      <option value="popularity.asc">인기도 낮은순</option>
-      <option value="vote_average.desc">평점 높은순</option>
-      <option value="vote_average.asc">평점 낮은순</option>
-      <option value="release_date.desc">최신순</option>
-      <option value="release_date.asc">오래된순</option>
+    <select v-model="selectedSort" @change="handleSortChange" class="filter-select">
+      <option value="">기본</option>
+      <option v-for="option in sortOptions" :key="option.value" :value="option.value">
+        {{ option.label }}
+      </option>
     </select>
   </div>
 </template>
 
 <script>
-import { ref } from 'vue'
-
 export default {
   name: 'SortFilter',
-  emits: ['change'],
-
-  setup() {
-    const sortBy = ref('popularity.desc')
-    return { sortBy }
+  data() {
+    return {
+      selectedSort: '',
+      sortOptions: [
+        { value: 'popularity.desc', label: '인기도 높은순' },
+        { value: 'popularity.asc', label: '인기도 낮은순' },
+        { value: 'vote_average.desc', label: '평점 높은순' },
+        { value: 'vote_average.asc', label: '평점 낮은순' },
+        { value: 'release_date.desc', label: '최신순' },
+        { value: 'release_date.asc', label: '오래된순' }
+      ]
+    }
+  },
+  methods: {
+    handleSortChange() {
+      this.$emit('change', this.selectedSort)
+    }
   }
 }
 </script>
 
 <style scoped>
-
 @import '@/assets/styles/filter.css';
-
 </style>

@@ -19,15 +19,63 @@ interface Movie {
   popularity: number;
 }
 
-export interface MovieService {
-  getPopularMovies(page?: number): Promise<AxiosResponse<MovieResponse>>;
-  getNowPlayingMovies(page?: number): Promise<AxiosResponse<MovieResponse>>;
-  getTopRatedMovies(page?: number): Promise<AxiosResponse<MovieResponse>>;
-  getUpcomingMovies(page?: number): Promise<AxiosResponse<MovieResponse>>;
-  getMovieDetails(movieId: number): Promise<AxiosResponse<Movie>>;
-  searchMovies(query: string, page?: number): Promise<AxiosResponse<MovieResponse>>;
-  getMovieGenres(): Promise<AxiosResponse<GenreResponse>>;  // 추가
+interface GenreResponse {
+  genres: Genre[];
 }
 
-export const movieService: MovieService;
+interface Genre {
+  id: number;
+  name: string;
+}
+
+interface FilterParams {
+  language?: string;
+  year?: number;
+  sort_by?: string;
+  genre?: number;
+  vote_average?: number;
+}
+
+export interface MovieService {
+  getMovies(page?: number, filters?: FilterParams): Promise<{
+    data: MovieResponse;
+    status: number;
+  }>;
+
+  getPopularMovies(page?: number): Promise<{
+    data: MovieResponse;
+    status: number;
+  }>;
+
+  getNowPlayingMovies(page?: number): Promise<{
+    data: MovieResponse;
+    status: number;
+  }>;
+
+  getTopRatedMovies(page?: number): Promise<{
+    data: MovieResponse;
+    status: number;
+  }>;
+
+  getUpcomingMovies(page?: number): Promise<{
+    data: MovieResponse;
+    status: number;
+  }>;
+
+  getMovieDetails(movieId: number): Promise<{
+    data: Movie;
+    status: number;
+  }>;
+
+  searchMovies(query: string, page?: number): Promise<{
+    data: MovieResponse;
+    status: number;
+  }>;
+
+  getGenres(): Promise<Genre[]>;
+
+  getMovieRatings(): Promise<number[]>;
+}
+
+declare const movieService: MovieService;
 export default movieService;

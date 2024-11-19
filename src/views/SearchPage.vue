@@ -9,6 +9,9 @@
         <div class="filters-container">
           <GenreFilter @change="handleGenreChange" />
           <RatingFilter @change="handleRatingChange" />
+          <LanguageFilter @change="handleLanguageChange" />
+          <YearFilter @change="handleYearChange" />
+          <SortFilter @change="handleSortChange" />
 
           <button class="reset-btn" @click="resetFilters">
             <i class="fas fa-undo"></i>
@@ -16,29 +19,43 @@
           </button>
         </div>
 
-          <ViewToggle :initialView="viewType" @viewType-changed="changeViewType" />
+        <ViewToggle :initialView="viewType" @viewType-changed="changeViewType" />
 
 
       </div>
-
-      <div class="table-view">
-              <!-- 영화 목록 -->
-      <TableView
-        v-if="viewType === 'table'"
-        :movies="filteredMovies"
-        :current-page="currentPage"
-        :total-pages="totalPages"
-        @page-changed="handlePageChange"
-      />
-
+      <!-- 로딩 인디케이터 -->
+      <div v-if="loading" class="loading-container">
+        <div class="loading-spinner"></div>
       </div>
 
-      <InfiniteScrollView
-        v-if="viewType === 'infinite'"
-        :movies="filteredMovies"
-        @wishlist-updated="handleWishlistUpdate"
-        @show-detail="handleShowDetail"
-      />
+      <!-- 영화 목록 뷰 -->
+      <div v-else>
+        <div class="table-view" v-if="viewType === 'table'">
+          <TableView
+            :movies="filteredMovies"
+            :current-page="currentPage"
+            :total-pages="totalPages"
+            @page-changed="handlePageChange"
+            @wishlist-updated="handleWishlistUpdate"
+            @show-detail="handleShowDetail"
+          />
+        </div>
+
+        <InfiniteScrollView
+          v-else
+          :movies="filteredMovies"
+          :loading="loadingMore"
+          @load-more="loadMoreMovies"
+          @wishlist-updated="handleWishlistUpdate"
+          @show-detail="handleShowDetail"
+        />
+      </div>
+
+      <!-- 결과 없음 메시지 -->
+      <div v-if="!loading && filteredMovies.length === 0" class="no-results">
+        <i class="fas fa-film"></i>
+        <p>검색 결과가 없습니다</p>
+      </div>
     </div>
   </div>
 </template>
@@ -48,9 +65,12 @@ import { ref, computed } from 'vue'
 import TableView from '@/components/common/viewType/TableView.vue'
 import InfiniteScrollView from '@/components/common/viewType/InfiniteScrollView.vue'
 import ViewToggle from '@/components/common/viewType/ViewToggle.vue'
-import { movieService } from '@/services/movieService'
+import movieService from '@/services/movieService'
 import GenreFilter from '@/components/movieFilters/GenreFilter.vue'
 import RatingFilter from '@/components/movieFilters/RatingFilter.vue';
+import LanguageFilter from '@/components/movieFilters/LanguageFilter.vue'
+import YearFilter from '@/components/movieFilters/YearFilter.vue'
+import SortFilter from '@/components/movieFilters/SortFilter.vue'
 import PageHeader from "@/components/layout/PageHeader.vue";
 
 export default {
@@ -63,11 +83,14 @@ export default {
     ViewToggle,
     GenreFilter,
     RatingFilter,
+    LanguageFilter,
+    YearFilter,
+    SortFilter,
   },
 
   data() {
     return {
-      viewType: 'table',
+      viewType: localStorage.getItem('preferredViewType') || 'table',
       movies: [],
       filteredMovies: [],
       currentPage: 1,
@@ -75,30 +98,57 @@ export default {
       loading: false,
       selectedGenre: null,
       selectedRating: null,
+      selectedLanguage: '',
+      selectedYear: '',
+      selectedSort: 'popularity.desc',
+    }
+  },
+  computed: {
+    filterParams() {
+      return {
+        language: this.selectedLanguage,
+        year: this.selectedYear,
+        sort_by: this.selectedSort,
+        genre: this.selectedGenre,
+        vote_average: this.selectedRating
+      }
     }
   },
 
   methods: {
-    async loadMovies() {
+    async loadMovies(page = 1) {
       try {
         this.loading = true
-        const response = await movieService.getPopularMovies(this.currentPage)
+        const response = await movieService.getMovies(page, this.filterParams)
+
         if (response?.data) {
-          this.movies = response.data.results
-          this.applyFilters()  // 데이터 로드 후 필터 적용
+          if (page === 1) {
+            this.movies = response.data.results
+          } else {
+            this.movies = [...this.movies, ...response.data.results]
+          }
+          this.filteredMovies = [...this.movies]
           this.totalPages = response.data.total_pages
         }
       } catch (error) {
         console.error('영화 로딩 실패:', error)
-      }
-      finally {
+      } finally {
         this.loading = false
+        this.loadingMore = false
+      }
+    },
+    async loadMoreMovies() {
+      if (this.currentPage < this.totalPages && !this.loadingMore) {
+        this.loadingMore = true
+        this.currentPage++
+        await this.loadMovies(this.currentPage)
       }
     },
 
     handlePageChange(page) {
       this.currentPage = page
-      this.loadMovies()
+      this.loadMovies(page)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     },
 
     handleGenreChange(value) {
@@ -110,6 +160,21 @@ export default {
       this.selectedRating = value;
       this.applyFilters();
     },
+    handleLanguageChange(value) {
+      this.selectedLanguage = value
+      this.resetPagination()
+    },
+
+    handleYearChange(value) {
+      this.selectedYear = value
+      this.resetPagination()
+    },
+
+    handleSortChange(value) {
+      this.selectedSort = value
+      this.resetPagination()
+    },
+
     applyFilters() {
       console.log('Applying filters with genre:', this.selectedGenre, 'and rating:', this.selectedRating);
 
@@ -130,15 +195,23 @@ export default {
 
       console.log('Filtered movies count:', this.filteredMovies.length);
     },
-
+    resetPagination() {
+      this.currentPage = 1
+      this.loadMovies()
+    },
     resetFilters() {
       this.selectedGenre = null
       this.selectedRating = null;
+      this.selectedLanguage = ''
+      this.selectedYear = ''
+      this.selectedSort = 'popularity.desc'
+      this.resetPagination()
       this.filteredMovies = [...this.movies];
     },
 
     changeViewType(view) {
       this.viewType = view;
+      localStorage.setItem('preferredViewType', view)
     },
 
     handleWishlistUpdate(movie) {
@@ -157,10 +230,9 @@ export default {
     await this.loadMovies()
   },
   watch: {
-    // movies 배열이 변경될 때마다 필터 다시 적용
-    movies: {
+    filterParams: {
       handler() {
-        this.applyFilters()
+        this.resetPagination()
       },
       deep: true
     }

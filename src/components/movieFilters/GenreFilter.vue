@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import { movieService } from '@/services/movieService'
+import movieService  from '@/services/movieService'
 
 export default {
   name: 'GenreFilter',
@@ -28,11 +28,10 @@ export default {
   methods: {
     async loadGenres() {
       try {
-        const response = await movieService.getMovieGenres()
-        this.genres = response.data.genres
-        console.log('Loaded genres:', this.genres)
+        const genres = await movieService.getGenres()
+        this.genres = genres
       } catch (error) {
-        console.error('장르 로드 실패:', error)
+        console.error('장르 목록 로딩 실패:', error)
       }
     },
 
