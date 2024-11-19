@@ -26,6 +26,7 @@ export interface MovieService {
   getUpcomingMovies(page?: number): Promise<AxiosResponse<MovieResponse>>;
   getMovieDetails(movieId: number): Promise<AxiosResponse<Movie>>;
   searchMovies(query: string, page?: number): Promise<AxiosResponse<MovieResponse>>;
+  getMovieGenres(): Promise<AxiosResponse<GenreResponse>>;  // 추가
 }
 
 export const movieService: MovieService;

@@ -94,6 +94,14 @@ export const movieService = {
     } catch (error) {
       return handleApiError(error);
     }
+  },
+
+  async getMovieGenres() {
+    try {
+      return await apiClient.get('/genre/movie/list')
+    } catch (error) {
+      return handleApiError(error)
+    }
   }
 };
 // 기본 export와 named export 둘 다 제공
