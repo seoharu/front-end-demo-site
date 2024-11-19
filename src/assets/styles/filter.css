@@ -1,4 +1,4 @@
-
+/* src/assets/styles/filters.css */
 .filter-group {
   position: relative;
   min-width: 200px;
@@ -7,11 +7,11 @@
 .filter-label {
   display: block;
   margin-bottom: 0.5rem;
-  font-weight: 500;
   color: #e5e7eb;
   font-size: 0.875rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  font-weight: 500;
 }
 
 .filter-select {

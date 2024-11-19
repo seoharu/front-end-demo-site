@@ -4,11 +4,13 @@
     <div class="filters-section">
       <div class="filters-container">
         <GenreFilter @change="handleGenreChange" />
+
         <button class="reset-btn" @click="resetFilters">
           <i class="fas fa-undo"></i>
           필터 초기화
         </button>
       </div>
+      <ViewToggle :initialView="viewType" @viewType-changed="changeViewType" />
     </div>
 
     <!-- 영화 목록 -->
@@ -19,12 +21,21 @@
       :total-pages="totalPages"
       @page-changed="handlePageChange"
     />
+
+    <InfiniteScrollView
+      v-if="viewType === 'infinite'"
+      :movies="filteredMovies"
+      @wishlist-updated="handleWishlistUpdate"
+      @show-detail="handleShowDetail"
+    />
   </div>
 </template>
 
 <script>
 import { ref, computed } from 'vue'
 import TableView from '@/components/common/viewType/TableView.vue'
+import InfiniteScrollView from '@/components/common/viewType/InfiniteScrollView.vue'
+import ViewToggle from '@/components/common/viewType/ViewToggle.vue'
 import { movieService } from '@/services/movieService'
 import GenreFilter from '@/components/movieFilters/GenreFilter.vue'
 
@@ -33,6 +44,8 @@ export default {
 
   components: {
     TableView,
+    InfiniteScrollView,
+    ViewToggle,
     GenreFilter,
   },
 
@@ -94,9 +107,22 @@ export default {
     resetFilters() {
       this.selectedGenre = null
       this.filteredMovies = [...this.movies]
-    }
+    },
+    changeViewType(view) {
+      this.viewType = view;
+    },
 
+    handleWishlistUpdate(movie) {
+      // 위시리스트 업데이트 처리
+      console.log('Wishlist updated:', movie);
+    },
+
+    handleShowDetail(movieId) {
+      // 영화 상세 정보 표시 처리
+      console.log('Show detail for movie:', movieId);
+    },
   },
+
 
   async created() {
     await this.loadMovies()
@@ -117,24 +143,62 @@ export default {
 .search-page {
   min-height: 100vh;
   padding: 2rem;
+  background: linear-gradient(135deg, #1f1f1f 0%, #2c2c2c 100%);
 }
 
 .filters-section {
-  margin-bottom: 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(10px);
+  padding: 1rem 0;
 }
 
 .filters-container {
   display: flex;
   gap: 1rem;
   align-items: center;
+  flex-wrap: wrap;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .reset-btn {
-  padding: 0.5rem 1rem;
-  background: #e50914;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #e50914 0%, #b71c1c 100%);
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3);
+}
+
+.reset-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(229, 9, 20, 0.4);
+}
+
+.reset-btn:active {
+  transform: translateY(1px);
+}
+
+@media (max-width: 768px) {
+  .filters-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .reset-btn {
+    width: 100%;
+    justify-content: center;
+  }
 }
 </style>
