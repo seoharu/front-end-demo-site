@@ -59,11 +59,25 @@ const setFeaturedMovie = (movie) => {
 };
 
 const showMovieDetail = async (movie) => {
+  console.log('showMovieDetail 호출됨', movie); // 디버깅 로그
+  if (!movie?.id) {
+    console.error('영화 ID가 없습니다');
+    return;
+  }
+
   try {
-    const { data } = await movieService.getMovieDetails(movie.id);
-    selectedMovie.value = data;
+    console.log('API 호출 시작, movieId:', movie.id); // 디버깅 로그 2
+    const movieDetails = await movieService.getMovieDetails(movie.id);
+    console.log('API 응답:', movieDetails); // 디버깅 로그 3
+
+    if (movieDetails) {
+      selectedMovie.value = movieDetails;
+      console.log('selectedMovie 설정됨:', selectedMovie.value); // 디버깅 로그 4
+    } else {
+      console.error('영화 상세 정보가 없습니다');
+    }
   } catch (error) {
-    console.error('영화 상세 정보 로딩 실패:', error);
+    console.error('영화 상세 정보 로딩 중 에러 발생:', error);
   }
 };
 
@@ -84,6 +98,9 @@ const loadMovies = async () => {
 onMounted(() => {
   loadMovies();
 });
+
+// movieService 확인
+console.log('movieService:', movieService); // 디버깅 로그
 </script>
 
 <style scoped>
