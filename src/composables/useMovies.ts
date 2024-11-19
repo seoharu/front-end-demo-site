@@ -9,6 +9,7 @@ interface Movie {
   vote_average: number
   overview: string
   genre_ids: number[]
+  rating: { min: number; max: number; } | null;
 }
 
 interface MovieResponse {

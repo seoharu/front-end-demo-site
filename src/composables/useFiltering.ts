@@ -8,14 +8,15 @@ export interface Movie {
   release_date: string;
   vote_average: number;
   popularity: number;
+  original_language: string;  // 언어 필드 추가
 }
 
 export interface FilterState {
   genre: number | null;
-  rating: number | null;
+  rating: { min: number; max: number; } | null;
   language: string | null;
   year: number | null;
-  sort: string | null;
+  sort: string;
 }
 
 export function useFiltering() {
@@ -57,9 +58,12 @@ export function useFiltering() {
         passes = passes && movie.genre_ids.includes(filters.value.genre);
       }
 
-      // Rating filter
+      // 평점 필터링 로직 수정
       if (filters.value.rating !== null) {
-        passes = passes && movie.vote_average >= filters.value.rating;
+        const movieRating = movie.vote_average || 0;
+        passes = passes &&
+          movieRating >= filters.value.rating.min &&
+          movieRating < filters.value.rating.max;
       }
 
       // Year filter
@@ -68,26 +72,35 @@ export function useFiltering() {
         passes = passes && movieYear === filters.value.year;
       }
 
-      // Language filter is handled by API call
+      // 언어 필터
+      if (filters.value.language !== null && filters.value.language !== '') {
+        passes = passes && movie.original_language === filters.value.language;
+      }
 
       return passes;
     });
   };
 
   const sortMovies = (movies: Movie[]): Movie[] => {
-    const [sortField, sortOrder] = (filters.value.sort || 'popularity.desc').split('.');
+    if (!filters.value.sort) return movies;
+
+    const [sortField, sortOrder] = filters.value.sort.split('.');
     const multiplier = sortOrder === 'desc' ? -1 : 1;
 
     return [...movies].sort((a, b) => {
-      switch (sortField) {
-        case 'popularity':
-          return (a.popularity - b.popularity) * multiplier;
-        case 'vote_average':
-          return (a.vote_average - b.vote_average) * multiplier;
-        case 'release_date':
-          return (new Date(a.release_date).getTime() - new Date(b.release_date).getTime()) * multiplier;
-        default:
-          return 0;
+      if (sortField === 'popularity') {
+        return ((a.popularity || 0) - (b.popularity || 0)) * multiplier;
+      } else if (sortField === 'vote_average') {
+        return ((a.vote_average || 0) - (b.vote_average || 0)) * multiplier;
+      } else if (sortField === 'release_date') {
+        if (!a.release_date || !b.release_date) return 0;
+        return (new Date(a.release_date).getTime() - new Date(b.release_date).getTime()) * multiplier;
+      } else if (sortField === 'revenue') {// revenue property에 대한 타입 안전성 확보
+        const revenueA = (a as any).revenue ?? 0;  // 타입 단언 사용
+        const revenueB = (b as any).revenue ?? 0;
+        return (revenueA - revenueB) * multiplier;
+      } else {
+        return 0;
       }
     });
   };
@@ -103,12 +116,17 @@ export function useFiltering() {
       params.with_genres = filters.value.genre;
     }
 
+    // 평점 파라미터 수정
     if (filters.value.rating !== null) {
-      params['vote_average.gte'] = filters.value.rating;
+      params['vote_average.gte'] = filters.value.rating.min;
+      if (filters.value.rating.max < 10) {
+        params['vote_average.lte'] = filters.value.rating.max;
+      }
     }
 
-    if (filters.value.language !== null) {
-      params.language = filters.value.language;
+    // 언어 필터 파라미터
+    if (filters.value.language !== null && filters.value.language !== '') {
+      params.with_original_language = filters.value.language;
     }
 
     if (filters.value.year !== null) {
