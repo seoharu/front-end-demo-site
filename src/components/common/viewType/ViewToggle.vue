@@ -42,9 +42,9 @@ const changeView = (view) => {
 <style scoped>
 .view-toggle-container {
   display: flex;
-  gap: 4px;
+  gap: 10px;
   background: rgba(255, 255, 255, 0.05);
-  padding: 3px;
+  padding: 5px;
   border-radius: 12px;
   backdrop-filter: blur(10px);
 }

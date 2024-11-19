@@ -1,34 +1,45 @@
 <template>
-  <div class="search-page">
-    <!-- 필터 섹션 -->
-    <div class="filters-section">
-      <div class="filters-container">
-        <GenreFilter @change="handleGenreChange" />
-        <RatingFilter @change="handleRatingChange" />
+  <div class="filter-movies-container">
+    <!-- 헤더 컴포넌트 -->
+    <PageHeader />
 
-        <button class="reset-btn" @click="resetFilters">
-          <i class="fas fa-undo"></i>
-          필터 초기화
-        </button>
+    <div class="search-page">
+      <!-- 필터 섹션 -->
+      <div class="filters-section">
+        <div class="filters-container">
+          <GenreFilter @change="handleGenreChange" />
+          <RatingFilter @change="handleRatingChange" />
+
+          <button class="reset-btn" @click="resetFilters">
+            <i class="fas fa-undo"></i>
+            필터 초기화
+          </button>
+        </div>
+
+          <ViewToggle :initialView="viewType" @viewType-changed="changeViewType" />
+
+
       </div>
-      <ViewToggle :initialView="viewType" @viewType-changed="changeViewType" />
+
+      <div class="table-view">
+              <!-- 영화 목록 -->
+      <TableView
+        v-if="viewType === 'table'"
+        :movies="filteredMovies"
+        :current-page="currentPage"
+        :total-pages="totalPages"
+        @page-changed="handlePageChange"
+      />
+
+      </div>
+
+      <InfiniteScrollView
+        v-if="viewType === 'infinite'"
+        :movies="filteredMovies"
+        @wishlist-updated="handleWishlistUpdate"
+        @show-detail="handleShowDetail"
+      />
     </div>
-
-    <!-- 영화 목록 -->
-    <TableView
-      v-if="viewType === 'table'"
-      :movies="filteredMovies"
-      :current-page="currentPage"
-      :total-pages="totalPages"
-      @page-changed="handlePageChange"
-    />
-
-    <InfiniteScrollView
-      v-if="viewType === 'infinite'"
-      :movies="filteredMovies"
-      @wishlist-updated="handleWishlistUpdate"
-      @show-detail="handleShowDetail"
-    />
   </div>
 </template>
 
@@ -40,11 +51,13 @@ import ViewToggle from '@/components/common/viewType/ViewToggle.vue'
 import { movieService } from '@/services/movieService'
 import GenreFilter from '@/components/movieFilters/GenreFilter.vue'
 import RatingFilter from '@/components/movieFilters/RatingFilter.vue';
+import PageHeader from "@/components/layout/PageHeader.vue";
 
 export default {
   name: 'SearchPage',
 
   components: {
+    PageHeader,
     TableView,
     InfiniteScrollView,
     ViewToggle,
@@ -156,18 +169,19 @@ export default {
 </script>
 
 <style scoped>
-.search-page {
+.filter-movies-container {
   min-height: 100vh;
+}
+.search-page {
   padding: 2rem;
   background: linear-gradient(135deg, #1f1f1f 0%, #2c2c2c 100%);
 }
 
 .filters-section {
   position: sticky;
-  top: 0;
+  top:95px;
   z-index: 10;
   backdrop-filter: blur(10px);
-  padding: 1rem 0;
 }
 
 .filters-container {
@@ -175,7 +189,7 @@ export default {
   gap: 1rem;
   align-items: center;
   flex-wrap: wrap;
-  padding: 1rem;
+  padding: 0.5rem;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
@@ -195,6 +209,8 @@ export default {
   transition: all 0.3s ease;
   font-weight: 600;
   box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3);
+  animation: fadeIn 0.3s ease-out;
+  margin-top: 30px;
 }
 
 .reset-btn:hover {
@@ -204,6 +220,14 @@ export default {
 
 .reset-btn:active {
   transform: translateY(1px);
+}
+
+.view-toggle-container {
+  display: flex;
+  width: 100px !important;
+}
+.table-view {
+  margin-top: 50px !important;
 }
 
 @media (max-width: 768px) {
