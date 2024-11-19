@@ -17,6 +17,11 @@ const routes: Array<RouteRecordRaw> = [
     name: 'PopularPage',
     component: () => import('@/views/PopularPage.vue')
   },
+  {
+    path: '/search',
+    name: 'SearchPage',
+    component: () => import('@/views/SearchPage.vue')
+  },
 ]
 
 const router = createRouter({
