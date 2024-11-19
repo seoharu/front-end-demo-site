@@ -4,6 +4,7 @@
     <div class="filters-section">
       <div class="filters-container">
         <GenreFilter @change="handleGenreChange" />
+        <RatingFilter @change="handleRatingChange" />
 
         <button class="reset-btn" @click="resetFilters">
           <i class="fas fa-undo"></i>
@@ -38,6 +39,7 @@ import InfiniteScrollView from '@/components/common/viewType/InfiniteScrollView.
 import ViewToggle from '@/components/common/viewType/ViewToggle.vue'
 import { movieService } from '@/services/movieService'
 import GenreFilter from '@/components/movieFilters/GenreFilter.vue'
+import RatingFilter from '@/components/movieFilters/RatingFilter.vue';
 
 export default {
   name: 'SearchPage',
@@ -47,6 +49,7 @@ export default {
     InfiniteScrollView,
     ViewToggle,
     GenreFilter,
+    RatingFilter,
   },
 
   data() {
@@ -58,6 +61,7 @@ export default {
       totalPages: 1,
       loading: false,
       selectedGenre: null,
+      selectedRating: null,
     }
   },
 
@@ -89,25 +93,37 @@ export default {
       this.selectedGenre = value === '' ? null : Number(value)
       this.applyFilters()
     },
-
+    handleRatingChange(value) {
+      this.selectedRating = value;
+      this.applyFilters();
+    },
     applyFilters() {
-      console.log('Applying filters with genre:', this.selectedGenre) // 디버깅용
-      if (!this.selectedGenre) {
-        this.filteredMovies = [...this.movies]
-        return
-      } else {
-        this.filteredMovies = this.movies.filter(movie => {
-          console.log('Checking movie:', movie.id, 'genres:', movie.genre_ids)
-          return movie.genre_ids && movie.genre_ids.includes(Number(this.selectedGenre))
-        })
+      console.log('Applying filters with genre:', this.selectedGenre, 'and rating:', this.selectedRating);
+
+      if (!this.selectedGenre && !this.selectedRating) {
+        this.filteredMovies = [...this.movies];
+        return;
       }
-      console.log('Filtered movies count:', this.filteredMovies.length) // 디버깅용
+
+      this.filteredMovies = this.movies.filter(movie => {
+        const genreMatch = !this.selectedGenre || (movie.genre_ids && movie.genre_ids.includes(Number(this.selectedGenre)));
+        const ratingMatch = !this.selectedRating || (movie.vote_average && movie.vote_average >= Number(this.selectedRating));
+
+        console.log('Movie:', movie.title, 'Vote Average:', movie.vote_average, 'Selected Rating:', this.selectedRating, 'Rating Match:', ratingMatch);
+        console.log('Checking movie:', movie.id, 'genres:', movie.genre_ids, 'rating:', movie.vote_average);
+        console.log('Movie:', movie.title, 'Vote Average:', movie.vote_average, 'Selected Rating:', this.selectedRating);
+        return genreMatch && ratingMatch;
+      });
+
+      console.log('Filtered movies count:', this.filteredMovies.length);
     },
 
     resetFilters() {
       this.selectedGenre = null
-      this.filteredMovies = [...this.movies]
+      this.selectedRating = null;
+      this.filteredMovies = [...this.movies];
     },
+
     changeViewType(view) {
       this.viewType = view;
     },
