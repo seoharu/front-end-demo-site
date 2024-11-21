@@ -31,10 +31,10 @@
 
         <div class="flex justify-between items-center">
           <button
-            @click.stop="toggleWishlist"
+            @click.stop="handleWishlistToggle"
             class="hover:text-red-500 transition-colors"
           >
-            <i :class="['fas', isWishlisted ? 'fa-heart text-red-500' : 'fa-heart text-white']"></i>
+            <i :class="['fas fa-heart', movieIsWishlisted ? 'text-red-500' : 'text-white']"></i>
           </button>
           <button
             class="text-xs bg-white/20 hover:bg-white/30 px-3 py-1 rounded"
@@ -50,6 +50,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
+import { useWishlist } from '@/composables/useWishlist'; // useWishlist import 추가
 
 const props = defineProps({
   movie: {
@@ -63,6 +64,8 @@ const emit = defineEmits(['wishlist-updated', 'show-detail']);
 const isHovered = ref(false);
 const fallbackImage = '/placeholder.jpg';
 
+const { isWishlisted, toggleWishlist } = useWishlist();
+
 const posterUrl = computed(() => {
   return props.movie.poster_path
     ? `https://image.tmdb.org/t/p/w500${props.movie.poster_path}`
@@ -75,24 +78,14 @@ const formattedDate = computed(() => {
     : '미정';
 });
 
-const isWishlisted = computed(() => {
-  const wishlist = JSON.parse(localStorage.getItem('movieWishlist') || '[]');
-  return wishlist.some(item => item.id === props.movie.id);
-});
+const movieIsWishlisted = computed(() => isWishlisted(props.movie.id));
 
-const toggleWishlist = () => {
-  const wishlist = JSON.parse(localStorage.getItem('movieWishlist') || '[]');
-  const index = wishlist.findIndex(item => item.id === props.movie.id);
-
-  if (index === -1) {
-    wishlist.push(props.movie);
-  } else {
-    wishlist.splice(index, 1);
-  }
-
-  localStorage.setItem('movieWishlist', JSON.stringify(wishlist));
+// handleWishlistToggle 수정
+const handleWishlistToggle = () => {
+  toggleWishlist(props.movie);
   emit('wishlist-updated');
 };
+
 
 const handleImageError = (e) => {
   e.target.src = fallbackImage;
