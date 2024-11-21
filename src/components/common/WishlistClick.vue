@@ -50,7 +50,7 @@ const showToastMessage = (message: string) => {
 // 위시리스트 토글 핸들러
 const handleToggleWishlist = () => {
   toggleWishlist(props.movie)
-  showToastMessage(isWishlisted.value ? '찜 목록에서 제거되었습니다.' : '찜 목록에 추가되었습니다.')
+  showToastMessage(isWishlisted.value ? '찜 목록에 추가되었습니다.' : '찜 목록에서 제거되었습니다.')
 }
 </script>
 

@@ -42,6 +42,11 @@
               <i class="fas fa-info-circle"></i>
               상세정보
             </button>
+
+            <WishlistClick
+              :movie="movie"
+              class="banner-wishlist-btn"
+            />
           </div>
         </div>
       </div>
@@ -50,6 +55,9 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
+import WishlistClick from '@/components/common/WishlistClick.vue'
+
 const props = defineProps({
   movie: {
     type: Object,
@@ -58,6 +66,7 @@ const props = defineProps({
 });
 
 defineEmits(['play', 'show-detail']);
+
 </script>
 
 <style scoped>
@@ -231,5 +240,35 @@ defineEmits(['play', 'show-detail']);
   .action-button i {
     margin-right: 0.5rem;
   }
+}
+
+.banner-wishlist-btn :deep(.wishlist-btn) {
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(4px);
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.banner-wishlist-btn :deep(.wishlist-btn:hover) {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.banner-wishlist-btn :deep(.wishlist-btn.is-wishlisted) {
+  background-color: rgba(229, 9, 20, 0.8);
+}
+
+.banner-wishlist-btn :deep(.toast-message) {
+  z-index: 60;
+}
+
+/* 애니메이션 */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.banner-wishlist-btn {
+  animation: fadeIn 0.3s ease-in-out;
 }
 </style>

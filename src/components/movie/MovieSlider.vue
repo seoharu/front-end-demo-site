@@ -44,6 +44,21 @@
                  </span>
                </div>
              </div>
+
+             <div class="flex flex-col gap-1">
+                    <WishlistClick
+                      :movie="movie"
+                      class="compact-mode w-full"
+                    />
+                    <button
+                      @click.stop="$emit('show-detail', movie)"
+                      class="w-full py-1 px-1 rounded bg-white/20 hover:bg-white/30
+                             transition-colors text-[8px] flex items-center justify-center gap-0.5"
+                    >
+                      <i class="fas fa-info-circle text-[8px]"></i>
+                      상세정보
+                    </button>
+             </div>
            </div>
          </div>
        </div>
@@ -61,6 +76,7 @@ import { Navigation, Mousewheel } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/mousewheel';
+import WishlistClick from "@/components/common/WishlistClick.vue";
 
 const modules = [Navigation, Mousewheel];
 

@@ -29,18 +29,21 @@
           </div>
         </div>
 
-        <div class="flex justify-between items-center">
-          <WishlistClick
-            :movie="movie"
-            @wishlist-updated="$emit('wishlist-updated')"
-            class="wishlist-btn-custom"
-          />
-
+        <!-- 하단 버튼 영역 -->
+        <div class="action-buttons flex gap-2">
           <button
-            class="text-xs bg-white/20 hover:bg-white/30 px-3 py-1 rounded"
-            @click.stop="$emit('show-detail', movie)"
+            @click.stop="handleWishlistToggle"
+            class="flex-1 py-2 px-4 rounded-md bg-red-600 hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
           >
-            상세정보
+            <i :class="['fas fa-heart', { 'text-white': !movieIsWishlisted, 'animate-pulse': movieIsWishlisted }]"></i>
+            <span>{{ movieIsWishlisted ? '찜 완료' : '찜하기' }}</span>
+          </button>
+          <button
+            @click.stop="$emit('show-detail', movie)"
+            class="flex-1 py-2 px-4 rounded-md bg-white/20 hover:bg-white/30 transition-colors flex items-center justify-center gap-2"
+          >
+            <i class="fas fa-info-circle"></i>
+            <span>상세정보</span>
           </button>
         </div>
       </div>
@@ -50,7 +53,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import WishlistClick from "@/components/common/WishlistClick.vue"; // useWishlist import 추가
+import { useWishlist } from '@/composables/useWishlist';
 
 const props = defineProps({
   movie: {
@@ -60,6 +63,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['wishlist-updated', 'show-detail']);
+const { isInWishlist, toggleWishlist } = useWishlist();
 
 const isHovered = ref(false);
 const fallbackImage = '/placeholder.jpg';
@@ -77,7 +81,62 @@ const formattedDate = computed(() => {
     : '미정';
 });
 
+const movieIsWishlisted = computed(() => isInWishlist(props.movie.id));
+
+const handleWishlistToggle = () => {
+  toggleWishlist(props.movie);
+  emit('wishlist-updated');
+};
+
+
 const handleImageError = (e) => {
   e.target.src = fallbackImage;
 };
 </script>
+
+
+<style scoped>
+.movie-card {
+  aspect-ratio: 2/3;
+  background-color: #141414;
+}
+
+.action-buttons button {
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.action-buttons button:hover {
+  transform: scale(1.02);
+}
+
+.action-buttons button:active {
+  transform: scale(0.98);
+}
+
+@keyframes heartPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.animate-pulse {
+  animation: heartPulse 1s ease-in-out;
+}
+
+/* 모바일 최적화 */
+@media (max-width: 640px) {
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .movie-info h3 {
+    font-size: 1rem;
+  }
+
+  .movie-info .text-sm {
+    font-size: 0.75rem;
+  }
+}
+</style>
