@@ -177,19 +177,19 @@ export default {
     const handleReset = async () => {
       // 각 컴포넌트의 내부 상태 직접 초기화
       if (genreFilterRef.value) {
-        genreFilterRef.value.selectedGenre = ''
+        genreFilterRef.value.reset()
       }
       if (ratingFilterRef.value) {
-        ratingFilterRef.value.selectedRating = ''
+        ratingFilterRef.value.reset()
       }
       if (languageFilterRef.value) {
-        languageFilterRef.value.selectedLanguage = ''
+        languageFilterRef.value.reset()
       }
       if (yearFilterRef.value) {
-        yearFilterRef.value.selectedYear = ''
+        yearFilterRef.value.reset()
       }
       if (sortFilterRef.value) {
-        sortFilterRef.value.selectedSort = 'popularity.desc'
+        sortFilterRef.value.reset()
       }
 
       // filters 상태 초기화

@@ -38,6 +38,11 @@ export default {
     handleChange() {
       console.log('Selected genre:', this.selectedGenre)
       this.$emit('change', this.selectedGenre)
+    },
+    reset() {
+      // selectedGenre 초기화하고 이벤트 발생
+      this.selectedGenre = ''
+      this.handleChange()
     }
   },
 

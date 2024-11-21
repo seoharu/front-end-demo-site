@@ -32,7 +32,7 @@ export default defineComponent({
 
   props: {
     selectedSort: {
-      type: String as PropType<string>,
+      type: String,
       default: 'popularity.desc'
     }
   },
@@ -55,10 +55,15 @@ export default defineComponent({
       const target = event.target as HTMLSelectElement
       emit('change', target.value)
     }
+    const reset = () => {
+      emit('change', 'popularity.desc')
+    }
+
 
     return {
       sortOptions,
-      handleSortChange
+      handleSortChange,
+      reset
     }
   }
 })
