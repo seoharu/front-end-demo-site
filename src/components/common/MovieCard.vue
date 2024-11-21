@@ -30,12 +30,12 @@
         </div>
 
         <div class="flex justify-between items-center">
-          <button
-            @click.stop="handleWishlistToggle"
-            class="hover:text-red-500 transition-colors"
-          >
-            <i :class="['fas fa-heart', movieIsWishlisted ? 'text-red-500' : 'text-white']"></i>
-          </button>
+          <WishlistClick
+            :movie="movie"
+            @wishlist-updated="$emit('wishlist-updated')"
+            class="wishlist-btn-custom"
+          />
+
           <button
             class="text-xs bg-white/20 hover:bg-white/30 px-3 py-1 rounded"
             @click.stop="$emit('show-detail', movie)"
@@ -50,7 +50,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { useWishlist } from '@/composables/useWishlist'; // useWishlist import 추가
+import WishlistClick from "@/components/common/WishlistClick.vue"; // useWishlist import 추가
 
 const props = defineProps({
   movie: {
@@ -64,7 +64,6 @@ const emit = defineEmits(['wishlist-updated', 'show-detail']);
 const isHovered = ref(false);
 const fallbackImage = '/placeholder.jpg';
 
-const { isWishlisted, toggleWishlist } = useWishlist();
 
 const posterUrl = computed(() => {
   return props.movie.poster_path
@@ -77,15 +76,6 @@ const formattedDate = computed(() => {
     ? new Date(props.movie.release_date).toLocaleDateString('ko-KR')
     : '미정';
 });
-
-const movieIsWishlisted = computed(() => isWishlisted(props.movie.id));
-
-// handleWishlistToggle 수정
-const handleWishlistToggle = () => {
-  toggleWishlist(props.movie);
-  emit('wishlist-updated');
-};
-
 
 const handleImageError = (e) => {
   e.target.src = fallbackImage;

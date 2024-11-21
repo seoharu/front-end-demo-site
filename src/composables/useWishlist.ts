@@ -1,45 +1,58 @@
-import { computed } from 'vue';
+import { ref, computed } from 'vue'
 
-interface Movie {
-  id: number;
-  title: string;
-  poster_path: string;
-  release_date: string;
-  vote_average: number;
+export interface Movie {
+  id: number
+  title: string
+  poster_path: string
+  overview?: string
+  vote_average?: number
+  release_date?: string
 }
 
 export function useWishlist() {
-  const STORAGE_KEY = 'movieWishlist';
+  const wishlist = ref<Movie[]>([])
 
-  const getWishlist = (): Movie[] => {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-  };
+  // 초기화: localStorage에서 위시리스트 불러오기
+  const initWishlist = () => {
+    const savedWishlist = localStorage.getItem('movieWishlist')
+    if (savedWishlist) {
+      wishlist.value = JSON.parse(savedWishlist)
+    }
+  }
 
-  const isWishlisted = (movieId: number): boolean => {
-    const wishlist = getWishlist();
-    return wishlist.some((item: Movie) => item.id === movieId);
-  };
+  // 위시리스트 저장
+  const saveWishlist = () => {
+    localStorage.setItem('movieWishlist', JSON.stringify(wishlist.value))
+  }
 
-  const toggleWishlist = (movie: Movie): void => {
-    const wishlist = getWishlist();
-    const index = wishlist.findIndex((item: Movie) => item.id === movie.id);
+  // 영화가 위시리스트에 있는지 확인
+  const isInWishlist = (movieId: number) => {
+    return wishlist.value.some(movie => movie.id === movieId)
+  }
+
+  // 위시리스트에 영화 추가/제거
+  const toggleWishlist = (movie: Movie) => {
+    const index = wishlist.value.findIndex(item => item.id === movie.id)
 
     if (index === -1) {
-      wishlist.push(movie);
+      wishlist.value.push(movie)
     } else {
-      wishlist.splice(index, 1);
+      wishlist.value.splice(index, 1)
     }
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(wishlist));
-  };
+    saveWishlist()
+  }
 
-  const getWishlistedMovies = (): Movie[] => {
-    return getWishlist();
-  };
+  // 위시리스트 개수
+  const wishlistCount = computed(() => wishlist.value.length)
+
+  // 컴포저블 초기화
+  initWishlist()
 
   return {
-    isWishlisted,
+    wishlist,
+    isInWishlist,
     toggleWishlist,
-    getWishlistedMovies
-  };
+    wishlistCount
+  }
 }
