@@ -52,6 +52,11 @@ export default defineComponent({
     handleLanguageChange() {
       const value = this.selectedLanguage === '' ? null : this.selectedLanguage
       this.$emit('change', value)
+    },
+    reset() {
+      // selectedLanguage 초기화하고 이벤트 발생
+      this.selectedLanguage = ''
+      this.handleLanguageChange()
     }
   }
 })

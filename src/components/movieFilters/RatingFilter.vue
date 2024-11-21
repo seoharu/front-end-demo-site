@@ -62,6 +62,11 @@ export default {
       } else {
         this.$emit('change', { min: this.selectedRating, max: 10 })
       }
+    },
+    reset() {
+      // selectedRating 초기화하고 이벤트 발생
+      this.selectedRating = ''
+      this.handleChange()
     }
   },
 

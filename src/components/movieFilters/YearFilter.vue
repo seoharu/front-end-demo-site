@@ -65,6 +65,11 @@ export default defineComponent({
     handleYearChange() {
       const value = this.selectedYear === '' ? null : Number(this.selectedYear)
       this.$emit('change', value)
+    },
+    reset() {
+      // selectedYear 초기화하고 이벤트 발생
+      this.selectedYear = ''
+      this.handleYearChange()
     }
   }
 })
