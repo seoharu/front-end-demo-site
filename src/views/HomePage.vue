@@ -167,4 +167,21 @@ console.log('movieService:', movieService); // 디버깅 로그
 .fade-leave-to {
   opacity: 0;
 }
+
+.movie-card {
+  position: relative;
+  transform-origin: center center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  z-index: 1; /* 기본 z-index 설정 */
+}
+
+.movie-card:hover {
+  z-index: 200; /* 호버 시 높은 z-index 설정으로 다른 카드 위에 표시 */
+  transform: scale(1.2);
+}
+
+.movie-card:hover .poster-overlay {
+  z-index: 150; /* 포스터 오버레이도 다른 요소보다 위에 표시 */
+}
 </style>

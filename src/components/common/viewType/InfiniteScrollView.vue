@@ -168,9 +168,9 @@ onUnmounted(() => {
 .infinite-scroll-view {
   min-height: 100vh;
   padding: 24px;
+  margin-top: 50px;
   background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
   max-width: 2000px;
-  margin: 0 auto;
 }
 
 :deep(.movie-card) {

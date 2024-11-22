@@ -70,13 +70,8 @@ const handleWishlistUpdate = () => {
 
 /* 찜한 영화 섹션 새로운 스타일 */
 .wishlisted-section {
-  @apply mt-24 rounded-xl overflow-hidden;
-  background: linear-gradient(
-    180deg,
-    rgba(229, 9, 20, 0.05) 0%,
-    rgba(229, 9, 20, 0.02) 50%,
-    transparent 100%
-  );
+  z-index: 10;
+  position: relative;
 }
 
 .section-header {

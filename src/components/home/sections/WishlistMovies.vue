@@ -62,11 +62,12 @@ const formatMovies = (movies) => {
   transform-origin: center center;
   transition: all 0.3s ease;
   cursor: pointer;
+  z-index: 1; /* 기본 z-index 설정 */
 }
 
-.movie-card:hover .relative {
-  transform: scale(1.2);
-  z-index: 100 !important;
+.movie-card:hover {
+  z-index: 10; /* 호버 시 높은 z-index 설정 */
+  transform: scale(1.2); /* 확대 효과 */
 }
 
 /* Navigation Buttons */
