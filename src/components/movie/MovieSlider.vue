@@ -45,20 +45,21 @@
                </div>
              </div>
 
-             <div class="flex flex-col gap-1">
+             <div class="flex gap-1 mt-1">
+                  <div @click.stop> <!-- 찜하기 버튼만 이벤트 전파 중단 -->
                     <WishlistClick
                       :movie="movie"
-                      class="compact-mode w-full"
+                      class="compact-mode"
                     />
-                    <button
-                      @click.stop="$emit('show-detail', movie)"
-                      class="w-full py-1 px-1 rounded bg-white/20 hover:bg-white/30
-                             transition-colors text-[8px] flex items-center justify-center gap-0.5"
-                    >
-                      <i class="fas fa-info-circle text-[8px]"></i>
-                      상세정보
-                    </button>
-             </div>
+                  </div>
+                  <button
+                    class="flex-1 py-1 px-2 rounded bg-white/20 hover:bg-white/30 transition-colors
+                           text-[8px] flex items-center justify-center gap-1"
+                  >
+                    <i class="fas fa-info-circle"></i>
+                    상세정보
+                  </button>
+              </div>
            </div>
          </div>
        </div>
