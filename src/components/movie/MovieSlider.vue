@@ -53,6 +53,7 @@
                     />
                   </div>
                   <button
+                    @click.stop="$emit('show-detail', movie)"
                     class="flex-1 py-1 px-2 rounded bg-white/20 hover:bg-white/30 transition-colors
                            text-[8px] flex items-center justify-center gap-1"
                   >
@@ -129,6 +130,13 @@ const handleImageError = (e) => {
  width: 100px;
 }
 
+.movie-card .absolute {
+  pointer-events: none; /* 기본적으로 이벤트 무시 */
+}
+
+.movie-card:hover .absolute {
+  pointer-events: auto; /* 호버 시에만 이벤트 활성화 */
+}
 /* relative div의 스타일 수정 */
 .relative {
  position: relative;
