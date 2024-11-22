@@ -26,31 +26,9 @@
         @wishlist-updated="handleWishlistUpdate"
       />
 
-      <div
-        v-if="wishlistedMovies.length"
-        class="wishlisted-section"
-      >
-        <div class="section-header">
-          <div class="header-content">
-            <i class="fas fa-heart text-red-600 mr-3"></i>
-            <h2 class="section-title">내가 찜한 콘텐츠</h2>
-          </div>
-          <div class="wishlist-count">
-            총 {{ wishlistedMovies.length }}개의 콘텐츠
-          </div>
-        </div>
-
-        <div class="section-description">
-          언제든 다시 볼 수 있도록 저장된 콘텐츠입니다
-        </div>
-
-        <MovieSection
-          :movies="wishlistedMovies"
-          @show-detail="(movie) => emit('show-detail', movie)"
-          @wishlist-updated="handleWishlistUpdate"
-          class="wishlist-movies"
-        />
-      </div>
+      <WishlistMovies
+        @show-detail="(movie) => $emit('show-detail', movie)"
+      />
     </div>
   </div>
 </template>
@@ -61,36 +39,21 @@ import PopularMovies from "@/components/home/sections/PopularMovies.vue"
 import NowPlayingMovies from "@/components/home/sections/NowPlayingMovies.vue"
 import TopRatedMovies from "@/components/home/sections/TopRatedMovies.vue"
 import UpcomingMovies from "@/components/home/sections/UpcomingMovies.vue"
+import WishlistMovies from "@/components/home/sections/WishlistMovies.vue"
 import MovieSection from "@/components/movie/MovieSection.vue"
 import { useWishlist } from '@/composables/useWishlist'
 
-const wishlistedMovies = ref([])
+
 
 // 위시리스트 컴포저블 사용
 const { wishlist } = useWishlist()
 
 const emit = defineEmits(['refresh', 'show-detail', 'featured-movie', 'wishlist-updated'])
 
-// 위시리스트 상태 감시
-watch(wishlist, () => {
-  updateWishlistedMovies()
-})
-
-// 위시리스트 영화 업데이트
-const updateWishlistedMovies = () => {
-  wishlistedMovies.value = wishlist.value
-}
-
-// 위시리스트 업데이트 핸들러
 const handleWishlistUpdate = () => {
-  updateWishlistedMovies()
-  emit('wishlist-updated')
-}
+  emit('wishlist-updated');
+};
 
-// 초기 위시리스트 로드
-onMounted(() => {
-  updateWishlistedMovies()
-})
 </script>
 
 <style scoped>
