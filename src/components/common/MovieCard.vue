@@ -4,6 +4,7 @@
     @mouseenter="isHovered = true"
     @mouseleave="isHovered = false"
   >
+
     <!-- Poster Image -->
     <img
       :src="posterUrl"
@@ -29,18 +30,14 @@
           </div>
         </div>
 
-        <!-- 하단 버튼 영역 -->
-        <div class="action-buttons flex gap-2">
-          <button
-            @click.stop="handleWishlistToggle"
-            class="flex-1 py-2 px-4 rounded-md bg-red-600 hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
-          >
-            <i :class="['fas fa-heart', { 'text-white': !movieIsWishlisted, 'animate-pulse': movieIsWishlisted }]"></i>
-            <span>{{ movieIsWishlisted ? '찜 완료' : '찜하기' }}</span>
-          </button>
+        <div class="Button-container">
+          <WishlistClick
+            :movie="movie"
+            class="action-btn wishlist-btn"
+          />
           <button
             @click.stop="$emit('show-detail', movie)"
-            class="flex-1 py-2 px-4 rounded-md bg-white/20 hover:bg-white/30 transition-colors flex items-center justify-center gap-2"
+            class="action-btn info-btn"
           >
             <i class="fas fa-info-circle"></i>
             <span>상세정보</span>
@@ -53,7 +50,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { useWishlist } from '@/composables/useWishlist';
+import WishlistClick from './WishlistClick.vue';
 
 const props = defineProps({
   movie: {
@@ -63,7 +60,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['wishlist-updated', 'show-detail']);
-const { isInWishlist, toggleWishlist } = useWishlist();
+
 
 const isHovered = ref(false);
 const fallbackImage = '/placeholder.jpg';
@@ -81,13 +78,6 @@ const formattedDate = computed(() => {
     : '미정';
 });
 
-const movieIsWishlisted = computed(() => isInWishlist(props.movie.id));
-
-const handleWishlistToggle = () => {
-  toggleWishlist(props.movie);
-  emit('wishlist-updated');
-};
-
 
 const handleImageError = (e) => {
   e.target.src = fallbackImage;
@@ -99,44 +89,118 @@ const handleImageError = (e) => {
 .movie-card {
   aspect-ratio: 2/3;
   background-color: #141414;
+  padding: 20px !important;
 }
 
-.action-buttons button {
-  font-size: 0.875rem;
+.button-container {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  margin-top: auto;
+}
+
+.action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 6px;
   font-weight: 500;
+  font-size: 0.9rem;
   transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.action-buttons button:hover {
-  transform: scale(1.02);
+:deep(.wishlist-btn) {
+  background: rgba(229, 9, 20, 0.9);
+  color: white;
 }
 
-.action-buttons button:active {
-  transform: scale(0.98);
+:deep(.wishlist-btn:hover) {
+  background: rgba(229, 9, 20, 1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(229, 9, 20, 0.3);
 }
 
-@keyframes heartPulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.2); }
-  100% { transform: scale(1); }
+:deep(.wishlist-btn.is-wishlisted) {
+  background: rgba(229, 9, 20, 0.7);
 }
 
-.animate-pulse {
-  animation: heartPulse 1s ease-in-out;
+.info-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.info-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+}
+
+.action-btn:active {
+  transform: translateY(0);
+}
+
+/* 반짝이는 테두리 효과 */
+:deep(.wishlist-btn)::after,
+.info-btn::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 6px;
+  padding: 1px;
+  background: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.2)
+  );
+  mask: linear-gradient(#000, #000) content-box, linear-gradient(#000, #000);
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+:deep(.wishlist-btn:hover)::after,
+.info-btn:hover::after {
+  opacity: 1;
+}
+
+/* 아이콘 스타일링 */
+.action-btn i {
+  font-size: 1.1rem;
 }
 
 /* 모바일 최적화 */
 @media (max-width: 640px) {
-  .action-buttons {
+  .button-container {
     flex-direction: column;
+    gap: 6px;
   }
 
-  .movie-info h3 {
+  .action-btn {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+
+  .action-btn i {
     font-size: 1rem;
   }
+}
 
-  .movie-info .text-sm {
-    font-size: 0.75rem;
+/* 호버 효과 비활성화 (터치 디바이스) */
+@media (hover: none) {
+  :deep(.wishlist-btn:hover),
+  .info-btn:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  :deep(.wishlist-btn:active),
+  .info-btn:active {
+    transform: scale(0.98);
   }
 }
 </style>
