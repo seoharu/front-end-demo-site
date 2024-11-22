@@ -4,7 +4,10 @@
     class="wishlist-btn action-btn"
     :class="{ 'is-wishlisted': isWishlisted }"
   >
-    <i :class="['fas fa-heart', { 'text-white': !isWishlisted, 'animate-pulse': isWishlisted }]"></i>
+    <i
+      class="fas fa-heart"
+      :class="{ 'text-white': !isWishlisted, 'text-pink-400 animate-pulse': isWishlisted }"
+    ></i>
     <span>{{ buttonText }}</span>
 
     <!-- 토스트 메시지 -->
@@ -34,10 +37,12 @@ const { isInWishlist, toggleWishlist } = useWishlist();
 const showToast = ref(false);
 const toastMessage = ref('');
 
-// 위시리스트 상태에 따른 버튼 텍스트
-const isWishlisted = computed(() => isInWishlist(props.movie.id));
 const buttonText = computed(() => isWishlisted.value ? '찜 완료' : '찜하기');
 
+// 안전하게 id 체크를 추가한 computed 속성
+const isWishlisted = computed(() => {
+  return props.movie && props.movie.id ? isInWishlist(props.movie.id) : false;
+});
 // 토스트 메시지 표시
 const showToastMessage = (message) => {
   toastMessage.value = message;
@@ -81,6 +86,22 @@ const handleWishlistToggle = () => {
 
 .wishlist-btn.is-wishlisted {
   background: rgba(229, 9, 20, 0.7);
+}
+
+/* 하트 색상 및 애니메이션 */
+.wishlist-btn.is-wishlisted i {
+  color: #f472b6; /* Tailwind의 pink-400 색상 */
+  text-shadow: 0 0 10px rgba(244, 114, 182, 0.5); /* 핑크색 글로우 효과 */
+}
+
+@keyframes heartPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.animate-pulse {
+  animation: heartPulse 1s ease-in-out;
 }
 
 /* 아이콘 애니메이션 */

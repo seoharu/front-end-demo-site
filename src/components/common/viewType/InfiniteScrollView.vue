@@ -10,7 +10,23 @@
         @show-detail="handleShowDetail"
         @click="showPosterOverlay(movie)"
         class="movie-card-animation"
-      />
+      >
+
+      <div class="action-buttons-container">
+          <WishlistClick
+            :movie="movie"
+            class="action-button wishlist-button"
+            @wishlist-updated="handleWishlistUpdate"
+          />
+          <button
+            @click.stop="handleShowDetail(movie)"
+            class="action-button info-button"
+          >
+            <i class="fas fa-info-circle"></i>
+            <span>상세정보</span>
+          </button>
+      </div>
+      </MovieCard>
     </div>
 
     <!-- 포스터 오버레이 -->
@@ -67,6 +83,7 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import MovieCard from "@/components/common/MovieCard.vue";
 import { useMovies } from "@/composables/useMovies";
+import WishlistClick from "@/components/common/WishlistClick.vue";
 
 const emit = defineEmits(['wishlist-updated', 'show-detail']);
 const showScrollTop = ref(false);
@@ -166,8 +183,12 @@ onUnmounted(() => {
   cursor: pointer;
 }
 
+.movie-card {
+  padding: 10px !important;
+}
 :deep(.movie-card img) {
   width: 100%;
+  height: 60%;
   display: block;
   aspect-ratio: 2/3;
   object-fit: cover;
@@ -178,22 +199,21 @@ onUnmounted(() => {
   box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
 }
 
-
 .movie-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 24px;
-  padding: 20px;
+  gap: 10px;
+  padding: 10px;
   margin-bottom: 32px;
 }
 
 /* 반응형 그리드 */
 @media (min-width: 1400px) {
   .movie-grid {
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     max-width: 1800px;
     margin: 0 auto;
-    gap: 30px;
+    gap: 10px;
   }
 }
 
@@ -250,7 +270,7 @@ onUnmounted(() => {
   top: 0;
   left: 0;
   width: 100vw;
-  height: 100vh;
+  height: 80vh;
   background: rgba(0, 0, 0, 0.9);
   display: flex;
   justify-content: center;
@@ -270,7 +290,7 @@ onUnmounted(() => {
   position: relative;
   display: flex;
   max-width: 90vw;
-  max-height: 90vh;
+  max-height: 50vh;
   background: white;
   border-radius: 12px;
   overflow: hidden;
@@ -278,7 +298,7 @@ onUnmounted(() => {
 }
 
 .poster-content img {
-  max-height: 90vh;
+  max-height: 50vh;
   object-fit: contain;
 }
 
@@ -386,7 +406,6 @@ onUnmounted(() => {
   100% { transform: rotate(360deg); }
 }
 
-
 @media (max-width: 768px) {
   .poster-content {
     flex-direction: column;
@@ -398,4 +417,115 @@ onUnmounted(() => {
     width: 100%;
   }
 }
+
+.movie-card-container {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: #141414;
+  transition: transform 0.3s ease;
+  aspect-ratio: 2/3;
+  height: 1000px;
+}
+
+.action-btn {
+  display: none !important;
+}
+/* 액션 버튼 컨테이너 스타일 */
+.action-buttons-container {
+  display: flex;
+  flex-direction: row;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  justify-content: space-between;
+  gap: 4px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+  height: 600px;
+  z-index: 10;
+}
+
+.movie-card-container .action-buttons-container {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 액션 버튼 공통 스타일 */
+.action-button {
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+  color: white;
+}
+
+/* 찜하기 버튼 스타일 */
+:deep(.wishlist-button) {
+  background: rgba(229, 9, 20, 0.9);
+}
+
+:deep(.wishlist-button:hover) {
+  background: rgba(229, 9, 20, 1);
+  transform: translateY(-2px);
+}
+
+:deep(.wishlist-button.is-wishlisted) {
+  background: rgba(229, 9, 20, 0.7);
+}
+
+/* 상세정보 버튼 스타일 */
+.info-button {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.info-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+/* 버튼 아이콘 스타일 */
+.action-button i {
+  font-size: 1rem;
+}
+
+/* 모바일 최적화 */
+@media (max-width: 640px) {
+  .action-buttons-container {
+    padding: 12px;
+  }
+
+  .action-button {
+    padding: 6px;
+    font-size: 0.8rem;
+  }
+
+  .action-button i {
+    font-size: 0.9rem;
+  }
+}
+
+/* 아주 작은 화면에서는 아이콘만 표시 */
+@media (max-width: 480px) {
+  .action-button span {
+    display: none;
+  }
+
+  .action-button i {
+    margin: 0;
+  }
+
+  .action-button {
+    padding: 8px;
+  }
+}
+
 </style>

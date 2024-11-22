@@ -94,111 +94,67 @@ const handleImageError = (e) => {
 
 .button-container {
   display: flex;
-  gap: 8px;
+  flex-direction: row; /* 가로 정렬 */
+  gap: 16px; /* 버튼 사이 간격 증가 */
   width: 100%;
-  margin-top: auto;
+  padding: 8px;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 20;
 }
 
 .action-btn {
-  flex: 1;
-  display: flex;
+  flex: none; /* flex-grow 제거하여 내용 크기만큼만 차지 */
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 8px 16px;
-  border-radius: 6px;
+  padding: 6px 16px; /* 좌우 패딩 증가 */
+  border-radius: 8px; /* 모서리 더 둥글게 */
   font-weight: 500;
   font-size: 0.9rem;
   transition: all 0.2s ease;
   backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+  min-width: 100px; /* 최소 너비 설정 */
+  margin-top: 10px;
+  margin-right: 10px;
 }
-
-:deep(.wishlist-btn) {
-  background: rgba(229, 9, 20, 0.9);
-  color: white;
-}
-
-:deep(.wishlist-btn:hover) {
-  background: rgba(229, 9, 20, 1);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(229, 9, 20, 0.3);
-}
-
-:deep(.wishlist-btn.is-wishlisted) {
-  background: rgba(229, 9, 20, 0.7);
-}
-
-.info-btn {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-}
-
-.info-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
-}
-
-.action-btn:active {
-  transform: translateY(0);
-}
-
-/* 반짝이는 테두리 효과 */
-:deep(.wishlist-btn)::after,
-.info-btn::after {
-  content: '';
-  position: absolute;
-  inset: -1px;
-  border-radius: 6px;
-  padding: 1px;
-  background: linear-gradient(
-    45deg,
-    rgba(255, 255, 255, 0.1),
-    rgba(255, 255, 255, 0.2)
-  );
-  mask: linear-gradient(#000, #000) content-box, linear-gradient(#000, #000);
-  mask-composite: exclude;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-
-:deep(.wishlist-btn:hover)::after,
-.info-btn:hover::after {
-  opacity: 1;
-}
-
-/* 아이콘 스타일링 */
-.action-btn i {
-  font-size: 1.1rem;
-}
-
-/* 모바일 최적화 */
+/* 모바일 대응 수정 */
 @media (max-width: 640px) {
   .button-container {
-    flex-direction: column;
-    gap: 6px;
+    gap: 12px; /* 작은 화면에서도 적절한 간격 유지 */
   }
 
   .action-btn {
-    padding: 6px 12px;
-    font-size: 0.85rem;
-  }
-
-  .action-btn i {
-    font-size: 1rem;
+    min-width: auto; /* 작은 화면에서는 최소 너비 제거 */
+    padding: 4px 12px;
   }
 }
 
+@media (max-width: 480px) {
+  .button-container {
+    gap: 8px; /* 매우 작은 화면에서 간격 축소 */
+  }
+
+  .action-btn {
+    width: 36px; /* 아이콘 버튼 크기 약간 증가 */
+    height: 36px;
+  }
+}
+
+
 /* 호버 효과 비활성화 (터치 디바이스) */
 @media (hover: none) {
-  :deep(.wishlist-btn:hover),
+  .wishlist-btn:hover,
   .info-btn:hover {
     transform: none;
     box-shadow: none;
   }
 
-  :deep(.wishlist-btn:active),
+  .wishlist-btn:active,
   .info-btn:active {
     transform: scale(0.98);
   }

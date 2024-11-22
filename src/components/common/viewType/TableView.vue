@@ -133,6 +133,19 @@ const closeOverlay = () => {
   margin-bottom: 2rem;
 }
 
+.poster-content {
+  position: relative;
+  display: flex;
+  max-width: 90vw;
+  max-height: 70vh !important;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+
+}
+
+
 /* 반응형 그리드 */
 @media (max-width: 1200px) {
   .movie-grid {
@@ -277,7 +290,7 @@ const closeOverlay = () => {
   position: relative;
   display: flex;
   max-width: 90vw;
-  max-height: 90vh;
+  max-height: 70vh;
   background: white;
   border-radius: 12px;
   overflow: hidden;
@@ -285,7 +298,7 @@ const closeOverlay = () => {
 }
 
 .poster-content img {
-  max-height: 90vh;
+  max-height: 70vh;
   object-fit: contain;
 }
 
