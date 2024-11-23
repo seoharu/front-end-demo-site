@@ -22,6 +22,11 @@ const routes: Array<RouteRecordRaw> = [
     name: 'SearchPage',
     component: () => import('@/views/SearchPage.vue')
   },
+  {
+    path: '/wishlist',
+    name: 'WishlistPage',
+    component: () => import('@/views/WishlistPage.vue')
+  },
 ]
 
 const router = createRouter({
