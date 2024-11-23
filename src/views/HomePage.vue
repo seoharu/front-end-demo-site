@@ -24,6 +24,7 @@
           @show-detail="showMovieDetail"
           @featured-movie="setFeaturedMovie"
         />
+
       </div>
 
       <!-- 영화 상세 모달 -->
@@ -42,17 +43,22 @@
 
 <script setup>
 // 스크립트 부분은 그대로 유지
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import movieService from '@/services/movieService';
 import MovieDetailModal from "@/components/movie/MovieDetailModal.vue";
 import ScrollToTop from "@/components/layout/ScrollToTop.vue";
 import FeaturedMovieBanner from "@/components/home/FeaturedMovieBanner.vue";
 import TotalMovieSections from "@/components/home/TotalMovieSections.vue";
 import PageHeader from "@/components/layout/PageHeader.vue";
+import { useWishlist } from '@/composables/useWishlist';
 
 const loading = ref(true);
 const featuredMovie = ref(null);
 const selectedMovie = ref(null);
+
+const { wishlist } = useWishlist();
+const wishlistMovies = computed(() => wishlist.value);
+
 
 const setFeaturedMovie = (movie) => {
   featuredMovie.value = movie;
@@ -99,6 +105,10 @@ onMounted(() => {
   loadMovies();
 });
 
+const handleImageError = (e) => {
+  e.target.src = '/placeholder-poster.jpg';
+};
+
 // movieService 확인
 console.log('movieService:', movieService); // 디버깅 로그
 </script>
@@ -134,7 +144,16 @@ console.log('movieService:', movieService); // 디버깅 로그
 /* 모바일 최적화 */
 @media (max-width: 768px) {
   .home {
-    padding-bottom: 4rem;  /* 모바일에서 하단 여백 추가 */
+    padding-bottom: 4rem;
+  }
+
+  .movie-sections-container {
+    margin-top: -50px;
+  }
+
+  .movie-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 0.5rem;
   }
 }
 
@@ -147,5 +166,22 @@ console.log('movieService:', movieService); // 디버깅 로그
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.movie-card {
+  position: relative;
+  transform-origin: center center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  z-index: 1; /* 기본 z-index 설정 */
+}
+
+.movie-card:hover {
+  z-index: 200; /* 호버 시 높은 z-index 설정으로 다른 카드 위에 표시 */
+  transform: scale(1.2);
+}
+
+.movie-card:hover .poster-overlay {
+  z-index: 150; /* 포스터 오버레이도 다른 요소보다 위에 표시 */
 }
 </style>

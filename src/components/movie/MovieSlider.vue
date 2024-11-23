@@ -34,7 +34,7 @@
                        transition-all duration-300 rounded-md">
              <div class="absolute bottom-0 w-full p-1 opacity-0 group-hover:opacity-100
                          transition-opacity duration-300">
-               <h3 class="text-white font-bold text-[10px] line-clamp-1">{{ movie.title }}</h3>
+               <h3 class="title">{{ movie.title }}</h3>
                <div class="flex items-center gap-0.5 mt-0.5">
                  <span class="text-white/80 text-[8px]">
                    {{ formatYear(movie.release_date) }}
@@ -44,6 +44,22 @@
                  </span>
                </div>
              </div>
+
+             <div class="button-container">
+                  <div @click.stop> <!-- 찜하기 버튼만 이벤트 전파 중단 -->
+                    <WishlistClick
+                      :movie="movie"
+                      class="action-button wishlist-btn"
+                    />
+                  </div>
+<!--                  <button-->
+<!--                    @click.stop="$emit('show-detail', movie)"-->
+<!--                    class="action-button info-btn"-->
+<!--                  >-->
+<!--                    <i class="fas fa-info-circle"></i>-->
+<!--                    상세정보-->
+<!--                  </button>-->
+              </div>
            </div>
          </div>
        </div>
@@ -61,6 +77,7 @@ import { Navigation, Mousewheel } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/mousewheel';
+import WishlistClick from "@/components/common/WishlistClick.vue";
 
 const modules = [Navigation, Mousewheel];
 
@@ -85,7 +102,7 @@ const handleImageError = (e) => {
 <style scoped>
 .movie-section {
  width: 100%;
- margin: 0.5rem 0;
+ margin: 0.7rem 0;
  position: relative;
  padding: 0.5rem 1rem;
  overflow: visible;
@@ -104,14 +121,29 @@ const handleImageError = (e) => {
  overflow: visible !important;
 }
 
+h3 {
+  white-space: nowrap !important;
+}
+
 .movie-card {
  position: relative;
  transform-origin: center center;
  transition: all 0.3s ease;
  cursor: pointer;
  width: 100px;
+
 }
 
+.movie-card :hover {
+   z-index: 1;
+}
+.movie-card .absolute {
+  pointer-events: none; /* 기본적으로 이벤트 무시 */
+}
+
+.movie-card:hover .absolute {
+  pointer-events: auto; /* 호버 시에만 이벤트 활성화 */
+}
 /* relative div의 스타일 수정 */
 .relative {
  position: relative;
@@ -190,5 +222,43 @@ const handleImageError = (e) => {
  .swiper-button-next {
    right: -2px !important;
  }
+}
+
+.button-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 2px;
+  align-items: center;
+  width: 100%;
+  padding: 2px;
+  position: relative;
+  top: 5px;
+  z-index: 20;
+}
+
+.action-button {
+  flex: 1;
+  display: inline-flex;
+  float: left;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  white-space: nowrap;
+  min-width: 100px;
+  margin-top: 10px;
+}
+
+.wishlist-section {
+  z-index: 1; /* 기본 z-index 설정으로 낮춤 */
+}
+
+.wishlist-swiper {
+  z-index: 1; /* 기본 z-index 설정으로 낮춤 */
 }
 </style>

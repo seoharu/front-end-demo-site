@@ -51,7 +51,7 @@ watch(() => props.movie, (newVal) => {
   top: 0;
   left: 0;
   width: 100vw;
-  height: 100vh;
+  height: 90vh;
   background: rgba(0, 0, 0, 0.8);
   display: flex;
   justify-content: center;
@@ -66,21 +66,32 @@ watch(() => props.movie, (newVal) => {
   width: 90%;
   display: flex;
   position: relative;
-  max-height: 90vh;
+  max-height: 70vh; /* 최대 높이 축소 */
   overflow: hidden;
 }
 
 .poster-section {
-  flex: 0 0 40%;
+  flex: 0 0 35%; /* 포스터 영역 비율 축소 */
   background: #f0f0f0;
 }
 
 .poster-section img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  max-height: 70vh  !important;
+  -o-object-fit: contain;
+  object-fit: contain;
 }
 
+.poster-content {
+  position: relative;
+  display: flex;
+  max-width: 90vw;
+  max-height: 70vh !important;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+
+}
 .info-section {
   flex: 1;
   padding: 24px;
@@ -130,7 +141,7 @@ h2 {
   }
 
   .poster-section {
-    height: 300px;
+    height: 200px;
   }
 
   .info-section {

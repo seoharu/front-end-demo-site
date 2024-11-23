@@ -29,7 +29,7 @@
           v-for="movie in movies"
           :key="movie.id"
           :movie="movie"
-          @wishlist-updated="$emit('wishlist-updated')"
+          @wishlist-updated="handleWishlistUpdate"
           @show-detail="$emit('show-detail', $event)"
         />
       </div>
@@ -133,4 +133,9 @@ const displayedPages = computed(() => {
 
   return pages;
 });
+
+const handleWishlistUpdate = () => {
+  // 위시리스트 업데이트 시 필요한 로직
+  // 예: 부모 컴포넌트에 알림, 상태 업데이트 등
+}
 </script>
