@@ -2,7 +2,14 @@
   <div class="page-wrapper">
     <PageHeader />
 
-    <div class="wishlist-container">
+    <!-- LoadingSpinner 추가 -->
+    <LoadingSpinner
+      :loading="loading"
+      :message="loadingMessage"
+      type="full"
+    />
+
+    <div class="wishlist-container" :class="{ 'opacity-50': loading }">
       <!-- 페이지 헤더 섹션 -->
       <div class="header-section">
         <h1 class="header-title">내가 찜한 콘텐츠</h1>
@@ -23,7 +30,7 @@
       </div>
 
       <!-- TableView 컴포넌트로 위시리스트 표시 -->
-      <div v-else class="content-section">
+      <div v-if="!loading && wishlist.length > 0" class="content-section">
         <TableView
           :movies="paginatedWishlist"
           :current-page="currentPage"
@@ -56,6 +63,11 @@ import TableView from '@/components/common/viewType/TableView.vue';
 import MovieDetailModal from '@/components/movie/MovieDetailModal.vue';
 import MovieCard from '@/components/common/MovieCard.vue';
 import PaginationNav from '@/components/common/PaginationNav.vue';
+import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
+
+// 로딩 상태 관리 추가
+const loading = ref(false);
+const loadingMessage = ref('위시리스트를 불러오는 중...');
 
 const { wishlist, wishlistCount } = useWishlist();
 const showScrollTop = ref(false);
@@ -80,26 +92,49 @@ const handleScroll = () => {
 
 // 페이지 변경 핸들러
 const handlePageChange = (page) => {
-  currentPage.value = page;
-  window.scrollTo({
-    top: 0,
-    behavior: 'smooth'
-  });
+  loading.value = true;
+  loadingMessage.value = `${page}페이지로 이동 중...`;
+
+  try {
+    currentPage.value = page;
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  } finally {
+    loading.value = false;
+  }
+
 };
 
 // 위시리스트 업데이트 핸들러
 const handleWishlistUpdate = () => {
-  // 위시리스트가 업데이트되면 페이지 재계산
-  const maxPage = Math.ceil(wishlist.value.length / moviesPerPage);
-  if (currentPage.value > maxPage) {
-    currentPage.value = maxPage || 1;
+  loading.value = true;
+  loadingMessage.value = '위시리스트 업데이트 중...';
+
+  try { // 위시리스트가 업데이트되면 페이지 재계산
+    const maxPage = Math.ceil(wishlist.value.length / moviesPerPage);
+    if (currentPage.value > maxPage) {
+      currentPage.value = maxPage || 1;
+    }
+  } finally {
+    loading.value = false;
   }
+
 };
 
 // 영화 상세 정보 모달 핸들러
 const handleShowDetail = (movie) => {
-  selectedMovie.value = movie;
-  document.body.style.overflow = 'hidden';
+  loading.value = true;
+  loadingMessage.value = '영화 상세 정보를 불러오는 중...';
+
+  try {
+    selectedMovie.value = movie;
+    document.body.style.overflow = 'hidden';
+  } finally {
+    loading.value = false;
+  }
+
 };
 
 // 모달 닫기 핸들러
@@ -108,9 +143,16 @@ const closeModal = () => {
   document.body.style.overflow = '';
 };
 
-// 라이프사이클 훅
-onMounted(() => {
-  window.addEventListener('scroll', handleScroll);
+// 초기 데이터 로드
+onMounted(async () => {
+  loading.value = true;
+  loadingMessage.value = '위시리스트를 불러오는 중...';
+
+  try {
+    window.addEventListener('scroll', handleScroll);
+  } finally {
+    loading.value = false;
+  }
 });
 
 onUnmounted(() => {
@@ -130,6 +172,7 @@ onUnmounted(() => {
   margin: 0 auto;
   padding: 2rem 1.5rem;
   padding-top: 6rem;
+  transition: opacity 0.3s ease;
 }
 
 /* 헤더 섹션 스타일링 */
@@ -273,5 +316,10 @@ onUnmounted(() => {
 /* 모달 스크롤 방지 */
 :global(body.modal-open) {
   overflow: hidden;
+}
+
+/* opacity 클래스 추가 */
+.opacity-50 {
+  opacity: 0.5;
 }
 </style>
