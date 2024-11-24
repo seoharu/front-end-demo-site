@@ -58,7 +58,7 @@
 <script setup>
 import {ref, onMounted, watch } from 'vue';
 import PageHeader from '@/components/layout/PageHeader.vue';
-import Loading from '@/components/common/Loading.vue';
+import Loading from '@/components/common/LoadingSpinner.vue';
 import ViewToggle from '@/components/common/viewType/ViewToggle.vue';
 import TableView from '@/components/common/viewType/TableView.vue';
 import InfiniteScrollView from "@/components/common/viewType/InfiniteScrollView.vue";

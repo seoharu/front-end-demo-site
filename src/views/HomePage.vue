@@ -4,12 +4,12 @@
     <PageHeader />
 
     <!-- 로딩 상태 -->
-    <Loading
+    <LoadingSpinner
       :loading="isLoading"
       :message="loadingMessage"
     />
 
-    <div class="flex flex-col min-h-screen">
+    <div class="flex flex-col min-h-screen" :class="{ 'opacity-50': isLoading }">
       <!-- 메인 배너 -->
       <FeaturedMovieBanner
         v-if="featuredMovie"
@@ -52,7 +52,7 @@ import FeaturedMovieBanner from "@/components/home/FeaturedMovieBanner.vue";
 import TotalMovieSections from "@/components/home/TotalMovieSections.vue";
 import PageHeader from "@/components/layout/PageHeader.vue";
 import { useWishlist } from '@/composables/useWishlist';
-import Loading from '@/components/common/Loading.vue'
+import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 
 // 로딩 상태 관리를 위한 ref 추가
 const isLoading = ref(false);
