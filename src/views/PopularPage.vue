@@ -4,7 +4,7 @@
     <PageHeader />
 
     <!-- 로딩 컴포넌트 -->
-    <Loading
+    <LoadingSpinner
       :loading="loading"
       :message="'영화 정보를 불러오는 중입니다.'"
     />
@@ -58,7 +58,7 @@
 <script setup>
 import {ref, onMounted, watch } from 'vue';
 import PageHeader from '@/components/layout/PageHeader.vue';
-import Loading from '@/components/common/LoadingSpinner.vue';
+import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import ViewToggle from '@/components/common/viewType/ViewToggle.vue';
 import TableView from '@/components/common/viewType/TableView.vue';
 import InfiniteScrollView from "@/components/common/viewType/InfiniteScrollView.vue";
@@ -215,6 +215,7 @@ onMounted(async () => {
 <style scoped>
 .popular-movies-container {
   min-height: 100vh;
+  background-color: rgb(17, 17, 17);
 }
 
 .content-wrapper {
