@@ -1,40 +1,38 @@
 <template>
   <div class="page-wrapper">
-    <!-- 공통 헤더 컴포넌트 -->
     <PageHeader />
 
-    <!-- 메인 콘텐츠 -->
-    <div class="wishlist-container min-h-screen bg-gray-900 text-white p-4 md:p-8 pt-24">
-      <!-- 페이지 헤더 -->
-      <div class="mb-8">
-        <h1 class="text-3xl font-bold mb-2">내가 찜한 콘텐츠</h1>
-        <p class="text-gray-400">
-          찜한 콘텐츠 {{ wishlistCount }}개
-        </p>
+    <div class="wishlist-container">
+      <!-- 페이지 헤더 섹션 -->
+      <div class="header-section">
+        <h1 class="header-title">내가 찜한 콘텐츠</h1>
+        <div class="header-subtitle">
+          <i class="fas fa-heart heart-icon"></i>
+          <span>찜한 콘텐츠 {{ wishlistCount }}개</span>
+        </div>
       </div>
 
       <!-- 빈 위시리스트 상태 -->
-      <div v-if="wishlist.length === 0" class="text-center py-16">
-        <i class="fas fa-heart text-4xl text-gray-600 mb-4"></i>
-        <h2 class="text-xl text-gray-400">아직 찜한 콘텐츠가 없습니다.</h2>
-        <router-link
-          to="/"
-          class="inline-block mt-4 px-6 py-2 bg-red-600 rounded-md hover:bg-red-700 transition-colors"
-        >
-          콘텐츠 둘러보기
+      <div v-if="wishlist.length === 0" class="empty-state">
+        <i class="fas fa-heart empty-icon"></i>
+        <h2 class="empty-text">아직 찜한 콘텐츠가 없습니다.</h2>
+        <router-link to="/" class="browse-button">
+          <i class="fas fa-film"></i>
+          <span>콘텐츠 둘러보기</span>
         </router-link>
       </div>
 
       <!-- TableView 컴포넌트로 위시리스트 표시 -->
-      <TableView
-        v-else
-        :movies="paginatedWishlist"
-        :current-page="currentPage"
-        :total-pages="totalPages"
-        @page-changed="handlePageChange"
-        @wishlist-updated="handleWishlistUpdate"
-        @show-detail="handleShowDetail"
-      />
+      <div v-else class="content-section">
+        <TableView
+          :movies="paginatedWishlist"
+          :current-page="currentPage"
+          :total-pages="totalPages"
+          @page-changed="handlePageChange"
+          @wishlist-updated="handleWishlistUpdate"
+          @show-detail="handleShowDetail"
+        />
+      </div>
     </div>
 
     <!-- 영화 상세 모달 -->
@@ -121,19 +119,158 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+.page-wrapper {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #1a1a1a, #0a0a0a);
+  color: #ffffff;
+}
+
 .wishlist-container {
   max-width: 1440px;
   margin: 0 auto;
+  padding: 2rem 1.5rem;
+  padding-top: 6rem;
 }
 
-/* 반응형 디자인을 위한 미디어 쿼리 */
-@media (max-width: 640px) {
+/* 헤더 섹션 스타일링 */
+.header-section {
+  position: relative;
+  margin-bottom: 3rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.header-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(to right, #ff4d4d, #f9cb28);
+  -webkit-background-clip: text;
+  color: transparent;
+  margin-bottom: 0.5rem;
+}
+
+.header-subtitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #9ca3af;
+  font-size: 1.1rem;
+}
+
+.heart-icon {
+  color: #ff4d4d;
+  animation: pulse 2s infinite;
+}
+
+/* 빈 상태 스타일링 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 0;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 1rem;
+  backdrop-filter: blur(10px);
+}
+
+.empty-icon {
+  font-size: 3rem;
+  color: #ff4d4d;
+  margin-bottom: 1.5rem;
+  opacity: 0.6;
+}
+
+.empty-text {
+  font-size: 1.25rem;
+  color: #9ca3af;
+  margin-bottom: 2rem;
+}
+
+.table-view {
+  padding: 0 !important;
+}
+.movie-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr); /* 5열 그리드 */
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  padding: 1rem;
+}
+.browse-button {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(to right, #ff4d4d, #f9cb28);
+  border-radius: 2rem;
+  color: white;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 77, 77, 0.3);
+}
+
+.browse-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 77, 77, 0.4);
+}
+
+.browse-button i {
+  font-size: 1.1rem;
+}
+
+/* 콘텐츠 섹션 스타일링 */
+.content-section {
+  position: relative;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 1rem;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* 애니메이션 */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
   .wishlist-container {
+    padding: 1rem;
     padding-top: 5rem;
+  }
+
+  .header-title {
+    font-size: 2rem;
+  }
+
+  .header-subtitle {
+    font-size: 1rem;
+  }
+
+  .content-section {
+    padding: 0.5rem;
   }
 }
 
-/* 모달이 열려있을 때 배경 스크롤 방지 */
+@media (max-width: 480px) {
+  .header-title {
+    font-size: 1.75rem;
+  }
+
+  .empty-state {
+    padding: 3rem 1rem;
+  }
+
+  .browse-button {
+    padding: 0.5rem 1.25rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* 모달 스크롤 방지 */
 :global(body.modal-open) {
   overflow: hidden;
 }

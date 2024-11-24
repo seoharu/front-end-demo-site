@@ -120,7 +120,7 @@ const closeOverlay = () => {
 
 <style scoped>
 .table-view {
-  padding: 1rem;
+  padding: 0.5rem;
   width: 100%;
   max-width: 1440px;
   margin: 0 auto;
@@ -129,7 +129,6 @@ const closeOverlay = () => {
 .movie-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr); /* 5열 그리드 */
-  gap: 1rem;
   margin-bottom: 2rem;
 }
 
