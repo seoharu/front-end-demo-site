@@ -206,26 +206,65 @@ const handleRegisterSuccess = () => {
 }
 
 @media (max-width: 480px) {
-  .auth-card {
-    height: auto;
-    min-height: 580px;
-  }
+ .auth-card {
+   height: auto;
+   min-height: 580px;
+   width: 90%; // Added
+   max-width: 360px; // Added
+ }
 
-  .card-front,
-  .card-back {
-    padding: 25px;
-  }
+ .card-front,
+ .card-back {
+   padding: 20px 15px; // Modified
+ }
 
-  .logo-section {
-    margin-bottom: 2rem;
+ .logo-section {
+   margin-bottom: 1.5rem; // Reduced
 
-    h1 {
-      font-size: 2.2rem;
-    }
+   h1 {
+     font-size: 2rem; // Smaller
+     margin-bottom: 0.3rem; // Added
+   }
 
-    p {
-      font-size: 1rem;
-    }
-  }
+   p {
+     font-size: 0.9rem; // Smaller
+   }
+ }
+
+ :deep(.auth-form) {
+   .form-group {
+     margin-bottom: 1rem; // Reduced
+
+     label {
+       font-size: 0.9rem; // Added
+     }
+
+     input {
+       padding: 0.6rem 0.8rem; // Smaller
+       font-size: 0.9rem; // Smaller
+     }
+   }
+
+   .form-button {
+     padding: 0.8rem; // Smaller
+     font-size: 0.9rem; // Smaller
+   }
+
+   .toggle-button {
+     margin-top: 1rem; // Reduced
+     padding: 0.8rem; // Smaller
+     font-size: 0.85rem; // Smaller
+   }
+ }
+}
+
+@media (max-width: 360px) { // Added smaller breakpoint
+ .auth-card {
+   min-height: 540px;
+ }
+
+ .logo-section h1 {
+   font-size: 1.8rem;
+ }
 }
 </style>
