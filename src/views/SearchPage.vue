@@ -10,7 +10,14 @@
     />
 
     <div class="search-page" :class="{ 'opacity-50': loading }">
-      <div class="filters-section">
+      <div
+        class="filters-section"
+        :class="{ 'filters-scrolled': isScrolled }"
+        :style="{
+          opacity: filterOpacity,
+          backgroundColor: `rgba(17, 17, 17, ${backgroundOpacity})`
+        }"
+      >
         <div class="filters-container">
           <GenreFilter
             ref="genreFilterRef"
@@ -84,7 +91,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useFiltering } from '@/composables/useFiltering'
 import TableView from '@/components/common/viewType/TableView.vue'
 import InfiniteScrollView from '@/components/common/viewType/InfiniteScrollView.vue'
@@ -123,6 +130,41 @@ const ratingFilterRef = ref(null)
 const languageFilterRef = ref(null)
 const yearFilterRef = ref(null)
 const sortFilterRef = ref(null)
+
+// Add new refs for scroll handling
+const isScrolled = ref(false)
+const scrollY = ref(0)
+
+// Compute opacity based on scroll position
+const filterOpacity = computed(() => {
+  return Math.max(0.7, 1 - (scrollY.value / 500))
+})
+
+const backgroundOpacity = computed(() => {
+  return Math.min(0.95, 0.7 + (scrollY.value / 500))
+})
+
+// Scroll handler with debounce
+let scrollTimeout
+const handleScroll = () => {
+  if (scrollTimeout) {
+    window.cancelAnimationFrame(scrollTimeout)
+  }
+
+  scrollTimeout = window.requestAnimationFrame(() => {
+    scrollY.value = window.scrollY
+    isScrolled.value = window.scrollY > 50
+  })
+}
+
+// Lifecycle hooks for scroll listener
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll, { passive: true })
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
+})
 
 // computed 속성들
 const processedMovies = computed(() => {
@@ -229,10 +271,6 @@ watch(filters, () => {
   loadMovies(1)
 }, { deep: true })
 
-// 초기 데이터 로드
-onMounted(() => {
-  loadMovies()
-})
 </script>
 
 <style scoped>
@@ -251,13 +289,16 @@ onMounted(() => {
 .filters-section {
   position: sticky;
   top: 64px;
-  left: 0;
-  right: 0;
   z-index: 10;
-  backdrop-filter: blur(10px);
-  background: rgb(17, 17, 17);
-  padding: 1.5rem 2rem; /* 상하 패딩 증가 */
+  transition: all 0.3s ease-in-out;
+  padding: 1.5rem 2rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.filters-scrolled {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  padding: 1rem 2rem;
 }
 
 .filters-container {
@@ -342,32 +383,68 @@ onMounted(() => {
 }
 
 @media (max-width: 768px) {
-
   .filters-section {
     padding: 1rem;
+    top: 56px;
+  }
+
+  .filters-scrolled {
+    padding: 0.75rem 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .filters-section {
+    padding: 0.75rem;
+    top: 48px;
+  }
+
+  .search-page {
+    padding-top: 4rem;
   }
 
   .filters-container {
-    flex-direction: column;
-    align-items: stretch;
+    gap: 0.3rem;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
   }
 
-  .filters-container > * {
-    min-width: 100%; /* 모바일에서는 전체 너비 사용 */
-  }
   .view-toggle-section {
-    margin-top: 1rem;
-    justify-content: center; /* 모바일에서는 중앙 정렬 */
-    padding: 0;
-  }
-  .reset-btn {
-    width: 100%;
-    justify-content: center;
-    margin-top: 1rem;
-  }
-  .no-results {
-    padding: 2rem 0;
-    min-height: 30vh;
+    margin-top: 0.5rem;
+    padding: 0 0.5rem;
   }
 }
+
+@media (max-width: 480px) {
+  .filters-section {
+    padding: 0.5rem;
+    top: 44px;
+  }
+
+  .search-page {
+    padding-top: 3.5rem;
+  }
+
+  .filters-container {
+    padding: 0.3rem;
+    gap: 0.2rem;
+  }
+}
+
+/* 필터 아이템 간격 조정 */
+@media (max-width: 640px) {
+  .filters-container > * {
+    margin-bottom: 0.3rem;
+  }
+
+  .filters-container > *:last-child {
+    margin-bottom: 0;
+  }
+
+  /* 필터 내부 간격 조정 */
+  .filter-group {
+    margin: 0.2rem 0;
+  }
+}
+
 </style>

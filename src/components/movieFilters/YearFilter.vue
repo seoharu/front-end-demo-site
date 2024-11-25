@@ -1,12 +1,15 @@
 <template>
   <div class="filter-group">
-    <label class="filter-label">개봉년도</label>
+    <label class="filter-label">
+      <i class="fas fa-calendar-alt"></i>
+      <span class="label-text">개봉년도</span>
+    </label>
     <select
       v-model="selectedYear"
       @change="handleYearChange"
       class="filter-select"
     >
-      <option value="">전체</option>
+      <option value="">전체 년도</option>
       <optgroup label="최근">
         <option
           v-for="year in recentYears"
