@@ -128,10 +128,6 @@ const handleImageError = (e) => {
     gap: 12px; /* 작은 화면에서도 적절한 간격 유지 */
   }
 
-  .action-btn {
-    min-width: auto; /* 작은 화면에서는 최소 너비 제거 */
-    padding: 4px 12px;
-  }
 }
 
 @media (max-width: 480px) {
@@ -139,10 +135,6 @@ const handleImageError = (e) => {
     gap: 8px; /* 매우 작은 화면에서 간격 축소 */
   }
 
-  .action-btn {
-    width: 36px; /* 아이콘 버튼 크기 약간 증가 */
-    height: 36px;
-  }
 }
 
 
