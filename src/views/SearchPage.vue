@@ -83,8 +83,25 @@
 
       <!-- 검색 결과 없음 표시 -->
       <div v-if="!loading && processedMovies.length === 0" class="no-results">
-        <i class="fas fa-film text-4xl text-gray-400"></i>
-        <p class="text-white text-lg">검색 결과가 없습니다</p>
+        <div class="empty-state">
+          <i class="fas fa-search text-4xl text-gray-400 mb-4"></i>
+          <p class="text-white text-lg">원하는 영화를 찾아보세요</p>
+          <p class="text-gray-400 text-sm mt-2">장르, 평점, 언어 등으로 필터링할 수 있습니다</p>
+        </div>
+        <!-- Add some movie suggestions or categories here -->
+        <div class="suggestions mt-8">
+          <h3 class="text-white text-xl mb-4">추천 장르</h3>
+          <div class="genre-chips">
+            <button
+              v-for="genre in ['액션', '코미디', '로맨스', 'SF']"
+              :key="genre"
+              class="genre-chip"
+              @click="() => updateFilter('genre', genre)"
+            >
+              {{ genre }}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -447,4 +464,32 @@ watch(filters, () => {
   }
 }
 
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+
+.genre-chips {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.genre-chip {
+  padding: 0.5rem 1.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  color: white;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.genre-chip:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
 </style>
