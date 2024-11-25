@@ -12,8 +12,8 @@
     <!-- 메인 컨텐츠 (헤더 높이만큼 여백) -->
     <div class="content-wrapper mt-16 px-4 py-6" :class="{ 'opacity-50': loading }">
       <!-- 뷰 토글 섹션 -->
-      <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-deepskyblue">대세 콘텐츠</h1>
+      <div class="contents">
+<!--        <h1 class="text-2xl font-bold text-deepskyblue">대세 콘텐츠</h1>-->
         <ViewToggle
           :initial-view="viewType"
           @viewType-changed="handleViewTypeChange"
@@ -213,6 +213,13 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.contents {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  margin-top: 60px;
+}
 .popular-movies-container {
   min-height: 100vh;
   background-color: rgb(17, 17, 17);
