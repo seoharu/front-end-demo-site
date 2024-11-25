@@ -1,25 +1,47 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
     name: 'home',
-    component: HomeView
+    component: () => import('@/views/HomePage.vue')
   },
   {
-    path: '/about',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
-  }
+    path: '/signin',
+    name: 'SignIn',
+    component: () => import('@/views/AuthPage.vue')
+  },
+  {
+    path: '/popular',
+    name: 'PopularPage',
+    component: () => import('@/views/PopularPage.vue')
+  },
+  {
+    path: '/search',
+    name: 'SearchPage',
+    component: () => import('@/views/SearchPage.vue')
+  },
+  {
+    path: '/wishlist',
+    name: 'WishlistPage',
+    component: () => import('@/views/WishlistPage.vue')
+  },
 ]
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
 })
+
+// // Navigation guard
+// router.beforeEach((to, from, next) => {
+//   const isAuthenticated = localStorage.getItem('TMDb-Key')
+//   if (to.name !== 'Login' && !isAuthenticated) {
+//     next({ name: 'Login' })
+//   } else {
+//     next()
+//   }
+// })
 
 export default router
