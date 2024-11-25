@@ -2,16 +2,24 @@
 .filter-group {
   position: relative;
   min-width: 200px;
+  animation: fadeIn 0.3s ease-out;
 }
 
 .filter-label {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   margin-bottom: 0.5rem;
   color: #e5e7eb;
   font-size: 0.875rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-weight: 500;
+}
+
+.filter-label i {
+  color: #0284c7;
+  font-size: 1rem;
 }
 
 .filter-select {
@@ -38,7 +46,51 @@
   box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.2);
 }
 
-/* Rating slider specific styles */
+@media (max-width: 768px) {
+  .filter-group {
+    min-width: 100%;
+  }
+
+  .filter-select {
+    height: 40px;
+    padding: 0.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .filter-label span {
+    display: none;
+  }
+
+  .filter-select {
+    height: 36px;
+    padding: 0.25rem 1.8rem;
+    font-size: 0.85rem;
+  }
+
+  .filter-label i {
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .filter-select {
+    height: 32px;
+    padding: 0.2rem 1.5rem;
+    font-size: 0.8rem;
+  }
+
+  .filter-label i {
+    font-size: 0.9rem;
+    left: 6px;
+  }
+}
+
+/* Rating slider styles */
 .rating-slider {
   position: relative;
   padding: 0.5rem 0;
@@ -56,7 +108,6 @@
 
 .slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  appearance: none;
   width: 18px;
   height: 18px;
   background: #e50914;
@@ -80,13 +131,6 @@
   font-size: 0.9rem;
 }
 
-@media (max-width: 768px) {
-  .filter-group {
-    min-width: 100%;
-  }
-}
-
-/* Animation */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -96,8 +140,4 @@
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-.filter-group {
-  animation: fadeIn 0.3s ease-out;
 }

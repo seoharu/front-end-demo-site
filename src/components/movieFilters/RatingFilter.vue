@@ -1,12 +1,15 @@
 <template>
   <div class="filter-group">
-    <label class="filter-label">최소 평점</label>
+    <label class="filter-label">
+      <i class="fas fa-star"></i>
+      <span class="label-text">최소 평점</span>
+    </label>
     <select
       v-model="selectedRating"
       @change="handleChange"
       class="filter-select"
     >
-      <option value="">전체</option>
+      <option value="">전체 별점</option>
       <option
         v-for="option in ratingOptions"
         :key="option.value"

@@ -1,6 +1,9 @@
 <template>
   <div class="filter-group">
-    <label class="filter-label">장르</label>
+    <label class="filter-label">
+      <i class="fas fa-film"></i>
+      <span class="label-text">장르</span>
+    </label>
     <select v-model="selectedGenre" @change="handleChange" class="filter-select">
       <option value="">전체 장르</option>
       <option v-for="genre in genres" :key="genre.id" :value="genre.id">

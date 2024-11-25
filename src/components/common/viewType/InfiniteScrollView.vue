@@ -167,7 +167,7 @@ onUnmounted(() => {
 <style scoped>
 .infinite-scroll-view {
   min-height: 100vh;
-  padding: 24px;
+  padding: 16px;
   margin-top: 50px;
   background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
   max-width: 2000px;
@@ -201,9 +201,9 @@ onUnmounted(() => {
 
 .movie-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 10px;
-  padding: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+  padding: 8px;
   margin-bottom: 32px;
 }
 
@@ -246,15 +246,68 @@ onUnmounted(() => {
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 640px) {
   .movie-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    padding: 8px;
+    gap: 6px;
+  }
+
+  .content-wrapper {
+    padding-left: 0.3rem;
+    padding-right: 0.3rem;
+  }
+
+  h3 {
+    font-size: 0.85rem;
+    margin: 0.2rem 0;
+    line-height: 1.1;
+  }
+
+  .action-buttons-container {
+    padding: 4px;
+    height: auto;
+    min-height: 32px;
+    bottom: 0;
+  }
+
+  .action-button {
+    padding: 3px 5px;
+    font-size: 0.65rem;
+  }
+
+  .movie-card-container {
+    margin-bottom: 0.4rem;
   }
 
   .infinite-scroll-view {
-    padding: 12px;
+    padding: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .movie-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+
+  h3 {
+    font-size: 0.8rem;
+    margin: 0.20rem 0;
+    line-height: 0.7;
+  }
+
+  .action-buttons-container {
+    padding: 4px;
+    min-height: 24px;
+  }
+
+  .action-button {
+    padding: 3px 4px;
+    font-size: 0.6rem;
+  }
+
+  .movie-card-container {
+    margin-bottom: 0.3rem;
   }
 }
 

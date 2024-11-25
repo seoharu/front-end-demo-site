@@ -1,12 +1,12 @@
 <template>
   <header
-    class="fixed top-0 w-full h-16 z-50 bg-gray-700 shadow-lg transition-all duration-300"
+    class="header-container"
     :class="{
-      'bg-black/80 shadow-lg': isScrolled,
-      'bg-gradient-to-b from-black/80 to-transparent': !isScrolled
+      'header-scrolled': isScrolled,
+      'header-initial': !isScrolled
     }"
   >
-    <nav class="container mx-auto px-8 h-full flex items-center justify-between">
+    <nav class="container mx-auto h-full flex items-center justify-between">
       <!-- Logo -->
       <router-link to="/" class="flex items-center">
         <font-awesome-icon icon="fas fa-film" class="logo" />
@@ -19,25 +19,25 @@
           :key="item.path"
           :to="item.path"
           class="movie-page"
-          :class="{ 'text-red-500': $route.path === item.path }"
+          :class="{ 'active': $route.path === item.path }"
         >
           {{ item.name }}
         </router-link>
       </div>
 
       <!-- Right Side User Section -->
-      <div class="right-side relative">
+      <div class="right-side">
         <button
           @click="handleUserClick"
           v-if="isLoggedIn"
-          class="text-white hover:text-red-500 transition-colors duration-200"
+          class="user-button"
         >
           <font-awesome-icon icon="fas fa-user" class="text-lg" />
         </button>
         <router-link
           v-else
           to="/signin"
-          class="text-white hover:text-red-500 transition-colors duration-200 text-sm flex items-center"
+          class="login-link"
         >
           <font-awesome-icon icon="fas fa-sign-in-alt" class="mr-2" />
           로그인
@@ -45,23 +45,23 @@
 
         <!-- User Dropdown Menu -->
         <Transition
-          enter-active-class="transition duration-200 ease-out"
-          enter-from-class="transform scale-95 opacity-0"
-          enter-to-class="transform scale-100 opacity-100"
-          leave-active-class="transition duration-75 ease-in"
-          leave-from-class="transform scale-100 opacity-100"
-          leave-to-class="transform scale-95 opacity-0"
+          enter-active-class="dropdown-enter"
+          enter-from-class="dropdown-enter-from"
+          enter-to-class="dropdown-enter-to"
+          leave-active-class="dropdown-leave"
+          leave-from-class="dropdown-leave-from"
+          leave-to-class="dropdown-leave-to"
         >
           <div
             v-if="isUserMenuOpen"
-            class="absolute right-0 top-full mt-1 w-48 bg-black/95 rounded-md shadow-lg py-1"
+            class="dropdown-menu"
           >
-            <div class="px-4 py-1.5 text-white border-b border-gray-700 text-sm whitespace-nowrap">
+            <div class="dropdown-header">
               {{ currentUser }}
             </div>
             <button
               @click="handleLogout"
-              class="w-full text-left px-4 py-1.5 text-white hover:bg-gray-800 transition-colors duration-200 text-sm"
+              class="dropdown-item"
             >
               <font-awesome-icon icon="fas fa-sign-out-alt" class="mr-2" />
               로그아웃
@@ -73,7 +73,280 @@
   </header>
 </template>
 
+<style scoped>
+/* 헤더 기본 스타일 */
+.header-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  z-index: 1001;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.header-initial {
+  background: linear-gradient(to bottom,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0.5) 50%,
+    rgba(0, 0, 0, 0) 100%);
+  backdrop-filter: blur(0);
+  border-bottom: 1px solid rgba(255, 255, 255, 0);
+}
+
+.header-scrolled {
+  height: 50px;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+
+/* 스크롤 시 메뉴 아이템 스타일 변경 */
+.header-scrolled .movie-page {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.header-scrolled .movie-page:hover {
+  color: white;
+}
+
+.header-scrolled .movie-page::after {
+  background: #60A5FA;
+}
+
+/* 네비게이션 컨테이너 */
+.container {
+  padding: 0 4%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* 로고 스타일링 */
+.logo {
+  color: #60A5FA;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logo:hover {
+  color: #3B82F6;
+  transform: scale(1.1);
+}
+
+/* 스크롤 시 로고 스타일 변경 */
+.header-scrolled .logo {
+  transform: scale(0.9);
+}
+
+.header-scrolled .logo:hover {
+  transform: scale(1);
+}
+
+/* 스크롤 시 드롭다운 메뉴 스타일 변경 */
+.header-scrolled .dropdown-menu {
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(10px);
+}
+
+/* 스크롤 시 로그인 버튼 스타일 변경 */
+.header-scrolled .login-link {
+  background: rgba(59, 130, 246, 0.9);
+}
+
+.header-scrolled .login-link:hover {
+  background: rgba(37, 99, 235, 1);
+}
+
+/* 초기 상태의 추가 스타일 */
+.header-initial .movie-page::after {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.header-initial .movie-page.active::after {
+  background: #60A5FA;
+}
+
+/* 호버 시 발광 효과 */
+.header-scrolled .movie-page:hover::after {
+  box-shadow: 0 0 8px rgba(96, 165, 250, 0.4);
+}
+
+/* 트랜지션 개선 */
+.header-container * {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+
+
+/* 네비게이션 메뉴 */
+.movie-pages {
+  display: flex;
+  gap: 2.5rem;
+  align-items: center;
+}
+
+.movie-page {
+  position: relative;
+  text-decoration: none;
+  color: #E5E7EB;
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 0.5rem 0;
+  transition: color 0.2s ease;
+}
+
+.movie-page::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #3B82F6;
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.movie-page:hover {
+  color: white;
+}
+
+.movie-page:hover::after,
+.movie-page.active::after {
+  transform: scaleX(1);
+}
+
+.movie-page.active {
+  color: #60A5FA;
+}
+
+/* 사용자 섹션 */
+.right-side {
+  position: relative;
+}
+
+.user-button {
+  padding: 0.5rem;
+  color: white;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.user-button:hover {
+  background: rgba(59, 130, 246, 0.1);
+  transform: translateY(-1px);
+}
+
+.login-link {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  background: #3B82F6;
+  color: white;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.login-link:hover {
+  background: #2563EB;
+  transform: translateY(-1px);
+}
+
+/* 드롭다운 메뉴 */
+.dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.5rem);
+  width: 200px;
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.dropdown-header {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 0.875rem;
+}
+
+.dropdown-item {
+  width: 100%;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  color: #E5E7EB;
+  transition: all 0.2s ease;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background: rgba(59, 130, 246, 0.1);
+  color: white;
+  transform: translateX(2px);
+}
+
+/* 드롭다운 애니메이션 클래스 */
+.dropdown-enter {
+  transition: all 0.3s ease-out;
+}
+
+.dropdown-enter-from {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.dropdown-enter-to {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.dropdown-leave {
+  transition: all 0.2s ease-in;
+}
+
+.dropdown-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.dropdown-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 1rem;
+  }
+
+  .movie-pages {
+    gap: 1.5rem;
+  }
+
+  .movie-page {
+    font-size: 0.875rem;
+  }
+}
+</style>
+
 <script setup lang="ts">
+// 기존 스크립트 부분은 동일하게 유지
 import { ref, onMounted, onUnmounted, watch, defineComponent } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
@@ -100,10 +373,9 @@ const {
 
 const isUserMenuOpen = ref(false)
 
-// 전역 클릭 이벤트 핸들러
 const handleClickOutside = (event: MouseEvent) => {
   const target = event.target as HTMLElement
-  if (!target.closest('.relative')) {
+  if (!target.closest('.right-side')) {
     isUserMenuOpen.value = false
   }
 }
@@ -122,7 +394,6 @@ const handleLogout = () => {
   router.push('/signin')
 }
 
-// 라우트 변경 감지
 watch(() => router.currentRoute.value.path, () => {
   isUserMenuOpen.value = false
 })
@@ -138,89 +409,3 @@ onUnmounted(() => {
   window.removeEventListener('click', handleClickOutside)
 })
 </script>
-
-<style scoped>
-.container {
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 40px;
-  padding: 20px 4%;
-  background-color: grey;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1001;
-  transition: background-color 0.3s ease;
-}
-
-.logo {
-  color: deepskyblue;
-  cursor: pointer;
-}
-.logo:hover {
-  color: #3b82f6;
-}
-
-.movie-pages {
-  display: flex;
-  flex-direction: row;
-  text-align: left;
-  align-items: flex-start;
-  justify-content: left;
-  gap: 50px;
-
-}
-.movie-page {
-  text-decoration: none;
-  white-space: nowrap;
-  color: deepskyblue;
-  cursor: pointer;
-}
-.movie-page:hover {
-  color: #3b82f6;
-}
-
-.right-side {
-  margin: auto 0;
-  cursor: pointer;
-}
-.right-side:hover {
-  color:#4b5563;
-}
-.flex.items-center {
-  align-items: center;
-}
-
-.flex.items-center.space-x-8 {
-  gap: 2rem;
-}
-
-.flex.items-center.space-x-4 {
-  gap: 1.5rem;
-}
-
-button {
-  outline: none;
-  border: none;
-  background: none;
-  cursor: pointer;
-}
-
-@media (max-width: 640px) {
-  .container {
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-  }
-
-  .flex.items-center.space-x-8 {
-    gap: 1rem;
-  }
-
-  .flex.items-center.space-x-4 {
-    gap: 0.75rem;
-  }
-}
-</style>

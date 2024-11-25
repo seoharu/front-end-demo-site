@@ -1,12 +1,15 @@
 <template>
   <div class="filter-group">
-    <label class="filter-label">언어</label>
+    <label class="filter-label">
+      <i class="fas fa-language"></i>
+      <span class="label-text">언어</span>
+    </label>
     <select
       v-model="selectedLanguage"
       @change="handleLanguageChange"
       class="filter-select"
     >
-      <option value="">전체</option>
+      <option value="">전체 언어</option>
       <option
         v-for="lang in languages"
         :key="lang.code"

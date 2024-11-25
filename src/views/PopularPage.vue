@@ -12,12 +12,22 @@
     <!-- 메인 컨텐츠 (헤더 높이만큼 여백) -->
     <div class="content-wrapper mt-16 px-4 py-6" :class="{ 'opacity-50': loading }">
       <!-- 뷰 토글 섹션 -->
-      <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-deepskyblue">대세 콘텐츠</h1>
+      <div
+        class="view-toggle-header"
+        :class="{ 'header-scrolled': isScrolled }"
+        :style="{
+          opacity: headerOpacity,
+          backgroundColor: `rgba(17, 17, 17, ${backgroundOpacity})`
+        }"
+      >
+
+      <div class="contents">
+<!--        <h1 class="text-2xl font-bold text-deepskyblue">대세 콘텐츠</h1>-->
         <ViewToggle
           :initial-view="viewType"
           @viewType-changed="handleViewTypeChange"
         />
+      </div>
       </div>
 
       <!-- 뷰 타입에 따른 컨텐츠 표시 -->
@@ -56,7 +66,7 @@
 </template>
 
 <script setup>
-import {ref, onMounted, watch } from 'vue';
+import {ref, onMounted, watch, computed, onUnmounted } from 'vue';
 import PageHeader from '@/components/layout/PageHeader.vue';
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import ViewToggle from '@/components/common/viewType/ViewToggle.vue';
@@ -89,6 +99,38 @@ const loading = ref(false);
 const loadingMessage = ref('영화 정보를 불러오는 중...');
 
 const { updateWishlist } = useWishlist();
+
+// Add new refs for scroll handling
+const isScrolled = ref(false)
+const scrollY = ref(0)
+
+const headerOpacity = computed(() => {
+  return Math.max(0.8, 1 - (scrollY.value / 400))
+})
+
+const backgroundOpacity = computed(() => {
+  return Math.min(0.95, 0.7 + (scrollY.value / 400))
+})
+
+let scrollTimeout
+const handleScroll = () => {
+  if (scrollTimeout) {
+    window.cancelAnimationFrame(scrollTimeout)
+  }
+
+  scrollTimeout = window.requestAnimationFrame(() => {
+    scrollY.value = window.scrollY
+    isScrolled.value = window.scrollY > 30
+  })
+}
+
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll, { passive: true })
+  // ... your existing onMounted logic
+})
+
+
+
 // 페이지 변경 감지
 watch(currentPage, async (newPage) => {
   console.log('Page changed to:', newPage)
@@ -208,11 +250,19 @@ onMounted(async () => {
   } finally {
     loading.value = false;
   }
+  window.removeEventListener('scroll', handleScroll)
 })
 
 </script>
 
 <style scoped>
+.contents {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  margin-top: 60px;
+}
 .popular-movies-container {
   min-height: 100vh;
   background-color: rgb(17, 17, 17);
@@ -223,12 +273,45 @@ onMounted(async () => {
   margin: 0 auto;
 }
 
+.view-toggle-header {
+  position: sticky;
+  top: 64px;
+  z-index: 10;
+  transition: all 0.3s ease;
+  padding: 1rem;
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+}
+
+.header-scrolled {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.contents {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  margin-top: 60px;
+}
+
 @media (max-width: 640px) {
   .content-wrapper {
     padding-left: 1rem;
     padding-right: 1rem;
   }
-}
 
+  .view-toggle-header {
+    top: 56px;
+    padding: 0.75rem;
+  }
+
+  .header-scrolled {
+    padding: 0.5rem 0.75rem;
+  }
+}
 
 </style>

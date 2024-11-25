@@ -1,7 +1,10 @@
 <!-- SortFilter.vue -->
 <template>
   <div class="filter-group">
-    <label class="filter-label">정렬</label>
+    <label class="filter-label">
+      <i class="fas fa-sort-amount-down"></i>
+      <span class="label-text">정렬</span>
+    </label>
     <select
       :value="selectedSort"
       @change="handleSortChange"
