@@ -4,11 +4,12 @@
     <PageHeader />
 
     <!-- 로딩 상태 -->
-    <div v-if="loading" class="flex justify-center items-center min-h-screen">
-      <div class="animate-spin rounded-full h-12 w-12 border-4 border-white border-t-transparent"></div>
-    </div>
+    <LoadingSpinner
+      :loading="isLoading"
+      :message="loadingMessage"
+    />
 
-    <div v-else class="flex flex-col min-h-screen">
+    <div class="flex flex-col min-h-screen" :class="{ 'opacity-50': isLoading }">
       <!-- 메인 배너 -->
       <FeaturedMovieBanner
         v-if="featuredMovie"
@@ -51,14 +52,17 @@ import FeaturedMovieBanner from "@/components/home/FeaturedMovieBanner.vue";
 import TotalMovieSections from "@/components/home/TotalMovieSections.vue";
 import PageHeader from "@/components/layout/PageHeader.vue";
 import { useWishlist } from '@/composables/useWishlist';
+import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 
-const loading = ref(true);
+// 로딩 상태 관리를 위한 ref 추가
+const isLoading = ref(false);
+const loadingMessage = ref('영화 정보를 불러오는 중...');
+
 const featuredMovie = ref(null);
 const selectedMovie = ref(null);
 
 const { wishlist } = useWishlist();
 const wishlistMovies = computed(() => wishlist.value);
-
 
 const setFeaturedMovie = (movie) => {
   featuredMovie.value = movie;
@@ -72,6 +76,9 @@ const showMovieDetail = async (movie) => {
   }
 
   try {
+    isLoading.value = true;
+    loadingMessage.value = '영화 상세 정보를 불러오는 중...';
+
     console.log('API 호출 시작, movieId:', movie.id); // 디버깅 로그 2
     const movieDetails = await movieService.getMovieDetails(movie.id);
     console.log('API 응답:', movieDetails); // 디버깅 로그 3
@@ -84,12 +91,16 @@ const showMovieDetail = async (movie) => {
     }
   } catch (error) {
     console.error('영화 상세 정보 로딩 중 에러 발생:', error);
+  } finally {
+    isLoading.value = false;
   }
 };
 
 const loadMovies = async () => {
   try {
-    loading.value = true;
+    isLoading.value = true;
+    loadingMessage.value = '최신 영화 정보를 불러오는 중...';
+
     const { data } = await movieService.getPopularMovies();
     if (data.results && data.results.length > 0) {
       featuredMovie.value = data.results[0];
@@ -97,7 +108,7 @@ const loadMovies = async () => {
   } catch (error) {
     console.error('영화 데이터 로딩 실패:', error);
   } finally {
-    loading.value = false;
+    isLoading.value = false;
   }
 };
 
@@ -111,6 +122,8 @@ const handleImageError = (e) => {
 
 // movieService 확인
 console.log('movieService:', movieService); // 디버깅 로그
+
+
 </script>
 
 <style scoped>

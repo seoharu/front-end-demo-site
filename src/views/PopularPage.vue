@@ -3,8 +3,14 @@
     <!-- 헤더 컴포넌트 -->
     <PageHeader />
 
+    <!-- 로딩 컴포넌트 -->
+    <LoadingSpinner
+      :loading="loading"
+      :message="'영화 정보를 불러오는 중입니다.'"
+    />
+
     <!-- 메인 컨텐츠 (헤더 높이만큼 여백) -->
-    <div class="content-wrapper mt-16 px-4 py-6">
+    <div class="content-wrapper mt-16 px-4 py-6" :class="{ 'opacity-50': loading }">
       <!-- 뷰 토글 섹션 -->
       <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-deepskyblue">대세 콘텐츠</h1>
@@ -37,11 +43,7 @@
       />
     </div>
 
-    <!-- 로딩 컴포넌트 -->
-    <Loading
-      :loading="loading"
-      :message="'영화 정보를 불러오는 중입니다.'"
-    />
+
     <!-- 영화 상세정보 모달 추가 -->
     <MovieDetail
       v-if="selectedMovie"
@@ -56,7 +58,7 @@
 <script setup>
 import {ref, onMounted, watch } from 'vue';
 import PageHeader from '@/components/layout/PageHeader.vue';
-import Loading from '@/components/common/Loading.vue';
+import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import ViewToggle from '@/components/common/viewType/ViewToggle.vue';
 import TableView from '@/components/common/viewType/TableView.vue';
 import InfiniteScrollView from "@/components/common/viewType/InfiniteScrollView.vue";
@@ -76,13 +78,15 @@ const allMovies = ref([]); // 무한 스크롤용 전체 영화 목록
 
 const {
   movies,
-  loading,
   currentPage,
   totalPages,
   hasMore,
   fetchPopularMovies,
 } = useMovies();
 
+// loading 상태 관리를 더 명확하게 정의
+const loading = ref(false);
+const loadingMessage = ref('영화 정보를 불러오는 중...');
 
 const { updateWishlist } = useWishlist();
 // 페이지 변경 감지
@@ -92,12 +96,21 @@ watch(currentPage, async (newPage) => {
 
 // 뷰 타입 변경 핸들러
 const handleViewTypeChange = async (newType) => {
-  viewType.value = newType;
-  if (newType === 'table') {
-    await fetchPopularMovies(1);
-  } else {
-    allMovies.value = [];
-    await handleLoadMore();
+  try {
+    loading.value = true;
+    loadingMessage.value = '보기 방식 변경 중...';
+
+    viewType.value = newType;
+    if (newType === 'table') {
+      await fetchPopularMovies(1);
+    } else {
+      allMovies.value = [];
+      await handleLoadMore();
+    }
+  } catch (err) {
+      console.error('Failed to change view type:', err);
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -108,6 +121,8 @@ const handlePageChange = async (page) => {
 
   try {
     loading.value = true
+    loadingMessage.value = `${page}페이지로 이동 중...`;
+
     await fetchPopularMovies(page)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   } catch (err) {
@@ -130,9 +145,12 @@ const handleLoadMore = async () => {
 
   try {
     loading.value = true;
+    loadingMessage.value = '추가 영화를 불러오는 중...';
+
     console.log('Loading started');
     const response = await fetchPopularMovies(currentPage.value + 1);
     console.log('API Response:', response);
+
     if (response?.results) {
       // 무한 스크롤일 때는 데이터 누적
       allMovies.value = [...allMovies.value, ...response.results];
@@ -163,6 +181,9 @@ const handleWishlistUpdate = (movie) => {
 // 영화 상세 정보 표시 핸들러
 const handleShowDetail = async (movieId) => {
   try {
+    loading.value = true;
+    loadingMessage.value = '영화 상세 정보를 불러오는 중...';
+
     // TMDB API에서 영화 상세 정보 가져오기
     const response = await fetch(
       `https://api.themoviedb.org/3/movie/${movieId}?api_key=${localStorage.getItem('TMDb-Key')}&language=ko-KR`
@@ -170,15 +191,22 @@ const handleShowDetail = async (movieId) => {
     selectedMovie.value = await response.json();
   } catch (error) {
     console.error('영화 상세 정보 로드 실패:', error);
+  } finally {
+    loading.value = false;
   }
 };
 
 // 초기 데이터 로드
 onMounted(async () => {
   try {
+    loading.value = true;
+    loadingMessage.value = '대세 콘텐츠를 불러오는 중...';
+
     await fetchPopularMovies(1)
   } catch (err) {
     console.error('Failed to load initial movies:', err)
+  } finally {
+    loading.value = false;
   }
 })
 
@@ -187,6 +215,7 @@ onMounted(async () => {
 <style scoped>
 .popular-movies-container {
   min-height: 100vh;
+  background-color: rgb(17, 17, 17);
 }
 
 .content-wrapper {
