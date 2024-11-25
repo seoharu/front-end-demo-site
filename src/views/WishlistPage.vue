@@ -358,4 +358,62 @@ onUnmounted(() => {
 .opacity-50 {
   opacity: 0.5;
 }
+
+@media screen and (max-width: 430px) {
+  .wishlist-container {
+    padding: 1rem; /* 컨테이너 내부 여백 조정 */
+    overflow: hidden; /* 컨테이너 내부 콘텐츠가 넘치지 않도록 설정 */
+  }
+
+  .movie-card {
+    height: auto; /* 높이를 콘텐츠에 맞게 자동 조정 */
+    margin: 0 auto; /* 카드가 컨테이너 중앙에 위치하도록 설정 */
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden; /* 카드 내 요소가 밖으로 나오는 것을 방지 */
+    max-width: 90%; /* 카드가 부모 컨테이너 너비를 넘지 않도록 제한 */
+  }
+
+  :deep(.movie-card img) {
+    width: 40%; /* 이미지 너비를 줄임 */
+    max-width: 90px; /* 너무 커지지 않도록 최대 크기 제한 */
+    height: auto; /* 이미지 비율 유지 */
+    border-radius: 0.5rem;
+    object-fit: cover; /* 비율을 유지하며 잘림 방지 */
+  }
+
+  .movie-title {
+    font-size: 0.9rem;
+    text-align: center; /* 텍스트 중앙 정렬 */
+    margin-top: 0.5rem;
+  }
+
+  .release-date {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    margin-top: 0.3rem;
+  }
+
+  .action-buttons-container {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .action-button {
+    width: 36px; /* 버튼 크기 조정 */
+    height: 36px;
+    font-size: 0.8rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
 </style>

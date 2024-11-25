@@ -151,4 +151,42 @@ const handleImageError = (e) => {
     transform: scale(0.98);
   }
 }
+
+@media screen and (max-width: 430px) {
+ .movie-card {
+   aspect-ratio: 2/3;
+   padding: 10px !important;
+ }
+
+ .button-container {
+   gap: 6px;
+   padding: 4px;
+ }
+
+ .action-btn {
+   width: 32px;
+   height: 32px;
+   min-width: auto;
+   padding: 0;
+ }
+
+ .action-btn span,
+ :deep(.wishlist-btn span) {
+   display: none;
+ }
+
+ .action-btn i {
+   font-size: 1.1rem;
+   margin: 0;
+ }
+
+ h3 {
+   font-size: 0.9rem;
+   margin-bottom: 0.5rem;
+ }
+
+ .text-sm {
+   font-size: 0.7rem;
+ }
+}
 </style>
