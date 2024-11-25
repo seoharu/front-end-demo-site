@@ -448,6 +448,41 @@ watch(filters, () => {
   }
 }
 
+@media screen and (max-width: 430px) {
+ .filters-container {
+   padding: 0.3rem;
+   gap: 0.8rem;
+   display: grid;
+   grid-template-columns: repeat(3, 1fr);
+   grid-template-rows: repeat(2, auto);
+ }
+
+ .filters-container > * {
+   min-width: auto;
+   height: 45px;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   background: rgba(255, 255, 255, 0.05);
+   border-radius: 8px;
+ }
+
+ .filters-container i {
+   display: none;
+ }
+
+ .filters-container .text-content {
+   font-size: 0.9rem;
+   color: rgba(255, 255, 255, 0.7);
+ }
+
+ .reset-btn {
+   grid-column: span 3;
+   margin: 0;
+   background: #e50914;
+ }
+}
+
 /* 필터 아이템 간격 조정 */
 @media (max-width: 640px) {
   .filters-container > * {

@@ -581,4 +581,46 @@ onUnmounted(() => {
   }
 }
 
+@media screen and (max-width: 430px) {
+ .movie-grid {
+   grid-template-columns: repeat(2, 1fr);
+   gap: 4px;
+   padding: 4px;
+ }
+
+ :deep(.movie-card) {
+   border-radius: 8px;
+ }
+
+ :deep(.movie-card img) {
+   height: 90%;
+ }
+
+ .action-buttons-container {
+   height: 15%;
+   padding: 4px;
+   opacity: 1;
+   background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+ }
+
+ .action-button {
+   padding: 4px;
+   font-size: 0.7rem;
+   height: 24px;
+ }
+
+ .action-button span {
+   display: none;
+ }
+
+ .action-button i {
+   font-size: 0.9rem;
+   margin: 0;
+ }
+
+ .poster-content, .poster-info, .overview, .release-date {
+   display: none;
+ }
+}
+
 </style>
