@@ -568,17 +568,61 @@ onUnmounted(() => {
 
 /* 아주 작은 화면에서는 아이콘만 표시 */
 @media (max-width: 480px) {
-  .action-button span {
-    display: none;
-  }
+ .action-buttons-container {
+   padding: 8px;
+   height: auto;
+ }
 
-  .action-button i {
-    margin: 0;
-  }
+ .action-button {
+   padding: 6px 8px;
+   font-size: 0.7rem;
+   min-width: 60px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   gap: 4px;
+ }
 
-  .action-button {
-    padding: 8px;
-  }
+ .action-button span {
+   display: inline-block;
+   white-space: nowrap;
+ }
+
+ .action-button i {
+   font-size: 0.8rem;
+ }
+}
+
+/* 포스터와 내용 크기 조정 */
+@media (max-width: 430px) {
+ .infinite-scroll-view {
+   margin-top: 28px;
+   padding: 6px;
+ }
+ :deep(.movie-card img) {
+   height: 50%;
+ }
+
+ h3 {
+   font-size: 0.7rem;
+   line-height: 1;
+   margin: 0.15rem 0;
+ }
+
+ .action-buttons-container {
+   bottom: 0;
+   padding: 3px;
+   min-height: 28px;
+ }
+
+ .action-button {
+   font-size: 0.6rem;
+   padding: 2px 4px;
+ }
+
+ .movie-card {
+   padding: 6px !important;
+ }
 }
 
 </style>
