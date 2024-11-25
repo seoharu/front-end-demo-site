@@ -355,4 +355,33 @@ onMounted(async () => {
  }
 }
 
+@media screen and (max-width: 430px) {
+ .content-wrapper {
+   padding: 0.5rem;
+
+ }
+
+ .view-toggle-header {
+   top: 56px;
+   padding: 0.5rem;
+   margin-bottom: 1rem;
+ }
+
+ .contents {
+   margin-top: 30px;
+ }
+
+ .header-scrolled {
+   padding: 0.3rem 0.5rem;
+ }
+
+ :deep(.toggle-buttons) {
+   gap: 0.5rem;
+ }
+
+ :deep(.toggle-button) {
+   padding: 0.3rem 0.6rem;
+   font-size: 0.8rem;
+ }
+}
 </style>

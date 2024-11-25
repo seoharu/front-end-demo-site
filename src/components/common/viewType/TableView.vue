@@ -357,4 +357,76 @@ const closeOverlay = () => {
     width: 100%;
   }
 }
+
+/* 아이폰 14 프로 맥스 전용 미디어 쿼리 (해상도 범위: 430px ~ 896px) */
+@media screen and (min-width: 430px) and (max-width: 896px) {
+  .movie-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr); /* 열 그리드로 변경 */
+    gap: 0.3rem; /* 카드 간 간격 추가 */
+    padding: 0.3rem; /* 그리드 내부 여백 추가 */
+    justify-items: flex-start; /* 카드 중앙 정렬 */
+  }
+
+  :deep(.movie-card) {
+    max-width: 260px; /* 카드의 최대 너비 설정 */
+    width: 40%; /* 카드가 그리드의 90%를 차지 */
+    height: auto; /* 높이는 콘텐츠에 맞게 조정 */
+    border-radius: 8px; /* 카드 모서리를 둥글게 설정 */
+    margin: 0 auto; /* 카드 중앙 정렬 */
+  }
+
+  .poster-content {
+    position: relative;
+    display: flex;
+    flex-direction: column; /* 세로 정렬 */
+    align-items: center; /* 콘텐츠를 수평 중앙 정렬 */
+    max-width: 80vw; /* 최대 너비 제한 */
+    max-height: 40vh; /* 최대 높이 제한 */
+    padding: 1rem; /* 내부 여백 추가 */
+    background: white;
+    border-radius: 12px;
+    overflow: hidden; /* 넘침 방지 */
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5); /* 그림자 추가 */
+  }
+
+  .poster-content img {
+    max-width: 70%; /* 포스터 너비 줄이기 */
+    max-height: 30vh; /* 최대 높이 제한 */
+    object-fit: cover; /* 비율 유지하며 잘림 방지 */
+    margin-bottom: 1rem; /* 이미지와 버튼 간 간격 추가 */
+  }
+
+  .action-buttons-container {
+    display: flex; /* 버튼을 Flexbox로 정렬 */
+    justify-content: center; /* 버튼 중앙 정렬 */
+    gap: 0.75rem; /* 버튼 간 간격 추가 */
+    margin-top: 0.5rem; /* 포스터와 버튼 사이 간격 추가 */
+  }
+
+  .close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+  }
+
+  .close-button:hover {
+    background: rgba(0, 0, 0, 0.7);
+    transform: scale(1.1);
+  }
+}
+
+
+
 </style>

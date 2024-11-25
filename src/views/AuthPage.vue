@@ -267,4 +267,56 @@ const handleRegisterSuccess = () => {
    font-size: 1.8rem;
  }
 }
+
+/* 아이폰 14 프로 맥스 전용 미디어 쿼리 (해상도 범위: 430px ~ 896px) */
+@media screen and (min-width: 430px) and (max-width: 896px) {
+  .auth-card {
+    width: 75%; /* 카드 너비 축소 */
+    max-width: 280px; /* 카드의 최대 너비 축소 */
+    height: auto;
+    min-height: 420px; /* 최소 높이 축소 */
+    padding: 10px; /* 내부 여백 축소 */
+    transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  .card-front,
+  .card-back {
+    padding: 15px; /* 내부 여백 축소 */
+  }
+
+  .logo-section {
+    margin-bottom: 1rem;
+
+    h1 {
+      font-size: 1.6rem; /* 제목 크기 축소 */
+      margin-bottom: 0.2rem;
+    }
+
+    p {
+      font-size: 0.8rem; /* 설명 텍스트 크기 축소 */
+    }
+  }
+
+  :deep(.auth-form .form-group) {
+    margin-bottom: 0.6rem; /* 폼 그룹 간의 간격 축소 */
+  }
+
+  :deep(.auth-form input) {
+    padding: 0.45rem 0.7rem; /* 인풋 패딩 축소 */
+    font-size: 0.8rem; /* 인풋 폰트 크기 축소 */
+  }
+
+  :deep(.auth-form .form-button) {
+    padding: 0.6rem; /* 버튼 패딩 축소 */
+    font-size: 0.8rem; /* 버튼 폰트 크기 축소 */
+  }
+
+  :deep(.auth-form .toggle-button) {
+    margin-top: 0.6rem; /* 토글 버튼과의 간격 축소 */
+    padding: 0.6rem; /* 패딩 축소 */
+    font-size: 0.75rem; /* 토글 버튼 폰트 크기 축소 */
+  }
+}
+
+
 </style>
