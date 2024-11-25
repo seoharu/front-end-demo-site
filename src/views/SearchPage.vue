@@ -400,52 +400,87 @@ watch(filters, () => {
 }
 
 @media (max-width: 768px) {
-  .filters-section {
-    padding: 1rem;
-    top: 56px;
-  }
+ .filters-section {
+   padding: 0.75rem;
+   top: 56px;
+ }
 
-  .filters-scrolled {
-    padding: 0.75rem 1rem;
-  }
+ .filters-container {
+   gap: 0.75rem;
+ }
 }
 
 @media (max-width: 640px) {
-  .filters-section {
-    padding: 0.75rem;
-    top: 48px;
-  }
+ .filters-section {
+   padding: 0.5rem;
+   top: 48px;
+ }
 
-  .search-page {
-    padding-top: 4rem;
-  }
+ .search-page {
+   padding: 3rem 0.75rem;
+ }
 
-  .filters-container {
-    gap: 0.3rem;
-    padding: 0.5rem;
-    margin-bottom: 0.5rem;
-  }
+ .filters-container {
+   gap: 0.5rem;
+   padding: 0.5rem;
+   flex-direction: column;
+ }
 
-  .view-toggle-section {
-    margin-top: 0.5rem;
-    padding: 0 0.5rem;
-  }
+ .filters-container > * {
+   min-width: 100%;
+   margin-bottom: 0.5rem;
+ }
+
+ .reset-btn {
+   margin-top: 0.5rem;
+   width: 100%;
+   min-width: 100%;
+   height: 40px;
+ }
 }
 
 @media (max-width: 480px) {
-  .filters-section {
-    padding: 0.5rem;
-    top: 44px;
-  }
+ .filters-section {
+   padding: 0.25rem;
+   top: 44px;
+ }
 
-  .search-page {
-    padding-top: 3.5rem;
-  }
+ .search-page {
+   padding: 2.5rem 0.5rem;
+ }
 
-  .filters-container {
-    padding: 0.3rem;
-    gap: 0.2rem;
-  }
+ .filters-container {
+   padding: 0.25rem;
+   gap: 0.25rem;
+ }
+
+ .genre-chips {
+   gap: 0.5rem;
+ }
+
+ .genre-chip {
+   padding: 0.25rem 1rem;
+   font-size: 0.875rem;
+ }
+}
+
+@media (max-width: 430px) {
+ .filters-section {
+   top: 40px;
+ }
+
+ .search-page {
+   padding: 2rem 0.25rem;
+ }
+
+ .filters-container > * {
+   margin-bottom: 0.25rem;
+ }
+
+ .no-results {
+   margin-top: 1rem;
+   min-height: 40vh;
+ }
 }
 
 /* 필터 아이템 간격 조정 */

@@ -299,19 +299,60 @@ onMounted(async () => {
 }
 
 @media (max-width: 640px) {
-  .content-wrapper {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
+ .content-wrapper {
+   padding-left: 0.75rem;
+   padding-right: 0.75rem;
+ }
 
-  .view-toggle-header {
-    top: 56px;
-    padding: 0.75rem;
-  }
+ .view-toggle-header {
+   top: 56px;
+   padding: 0.75rem;
+   margin-bottom: 1rem;
+ }
 
-  .header-scrolled {
-    padding: 0.5rem 0.75rem;
-  }
+ .header-scrolled {
+   padding: 0.5rem 0.75rem;
+ }
+
+ .contents {
+   margin-top: 40px;
+   margin-bottom: 4px;
+   flex-direction: column;
+   gap: 0.5rem;
+ }
+}
+
+@media (max-width: 480px) {
+ .content-wrapper {
+   padding: 0.5rem;
+   margin-top: 3.5rem;
+ }
+
+ .view-toggle-header {
+   top: 48px;
+   padding: 0.5rem;
+   border-radius: 8px;
+ }
+
+ .contents {
+   margin-top: 30px;
+ }
+}
+
+@media (max-width: 430px) {
+ .content-wrapper {
+   padding: 0.25rem;
+ }
+
+ .view-toggle-header {
+   top: 44px;
+   border-radius: 6px;
+ }
+
+ .contents {
+   margin-top: 25px;
+   gap: 0.25rem;
+ }
 }
 
 </style>

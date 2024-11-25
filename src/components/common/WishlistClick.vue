@@ -138,12 +138,78 @@ const handleWishlistToggle = () => {
   transform: translateX(-50%) translateY(0);
 }
 
-/* 모바일 최적화 */
+@media (max-width: 768px) {
+ .wishlist-btn {
+   padding: 7px 14px;
+   font-size: 0.85rem;
+   gap: 5px;
+ }
+
+ .toast-message {
+   font-size: 0.8rem;
+   padding: 6px 14px;
+ }
+}
+
 @media (max-width: 640px) {
-  .wishlist-btn {
-    padding: 6px 12px;
-    font-size: 0.85rem;
-  }
+ .wishlist-btn {
+   padding: 6px 12px;
+   font-size: 0.8rem;
+   gap: 4px;
+ }
+
+ .toast-message {
+   font-size: 0.75rem;
+   padding: 5px 12px;
+ }
+}
+
+@media (max-width: 480px) {
+ .wishlist-btn {
+   padding: 5px 10px;
+   font-size: 0.75rem;
+   gap: 3px;
+ }
+
+ .toast-message {
+   font-size: 0.7rem;
+   padding: 4px 10px;
+   bottom: calc(100% + 8px);
+ }
+}
+
+@media (max-width: 430px) {
+ .wishlist-btn {
+   padding: 8px 12px;
+   font-size: 0.8rem;
+   border-radius: 8px;
+   min-width: 80px;
+
+   i {
+     font-size: 0.9rem;
+   }
+
+   span {
+     display: inline-block;
+     white-space: nowrap;
+   }
+ }
+
+ .toast-message {
+   bottom: calc(100% + 8px);
+   padding: 6px 12px;
+   font-size: 0.75rem;
+   min-width: 120px;
+   text-align: center;
+ }
+}
+
+@media (max-width: 360px) {
+ .wishlist-btn {
+   padding: 6px 10px;
+   font-size: 0.75rem;
+   min-width: 70px;
+ }
 }
 
 /* 호버 효과 비활성화 (터치 디바이스) */

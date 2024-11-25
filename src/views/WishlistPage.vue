@@ -280,37 +280,73 @@ onUnmounted(() => {
 
 /* 반응형 디자인 */
 @media (max-width: 768px) {
-  .wishlist-container {
-    padding: 1rem;
-    padding-top: 5rem;
-  }
+ .wishlist-container {
+   padding: 1rem;
+   padding-top: 5rem;
+ }
 
-  .header-title {
-    font-size: 2rem;
-  }
+ .header-title {
+   font-size: 2rem;
+ }
 
-  .header-subtitle {
-    font-size: 1rem;
-  }
+ .content-section {
+   padding: 0.5rem;
+ }
+}
 
-  .content-section {
-    padding: 0.5rem;
-  }
+@media (max-width: 640px) {
+ .wishlist-container {
+   padding: 0.75rem;
+   padding-top: 4.5rem;
+ }
+
+ .header-section {
+   margin-bottom: 2rem;
+   padding-bottom: 1rem;
+ }
+
+ .header-title {
+   font-size: 1.85rem;
+ }
 }
 
 @media (max-width: 480px) {
-  .header-title {
-    font-size: 1.75rem;
-  }
+ .wishlist-container {
+   padding: 0.5rem;
+   padding-top: 4rem;
+ }
 
-  .empty-state {
-    padding: 3rem 1rem;
-  }
+ .header-title {
+   font-size: 1.75rem;
+ }
 
-  .browse-button {
-    padding: 0.5rem 1.25rem;
-    font-size: 0.9rem;
-  }
+ .empty-state {
+   padding: 2.5rem 0.75rem;
+ }
+
+ .browse-button {
+   padding: 0.5rem 1rem;
+   font-size: 0.85rem;
+ }
+}
+
+@media (max-width: 430px) {
+ .wishlist-container {
+   padding: 0.25rem;
+   padding-top: 3.5rem;
+ }
+
+ .header-title {
+   font-size: 1.5rem;
+ }
+
+ .header-subtitle {
+   font-size: 0.9rem;
+ }
+
+ .empty-state {
+   padding: 2rem 0.5rem;
+ }
 }
 
 /* 모달 스크롤 방지 */
