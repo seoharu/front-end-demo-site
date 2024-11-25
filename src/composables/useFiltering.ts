@@ -1,4 +1,3 @@
-// useFiltering.ts
 import { ref, computed } from 'vue';
 
 export interface Movie {
@@ -8,7 +7,8 @@ export interface Movie {
   release_date: string;
   vote_average: number;
   popularity: number;
-  original_language: string;  // 언어 필드 추가
+  original_language: string;
+  revenue?: number;  // Optional revenue property
 }
 
 export interface FilterState {
@@ -16,115 +16,110 @@ export interface FilterState {
   rating: { min: number; max: number; } | null;
   language: string | null;
   year: number | null;
-  sort: string;
+  sort: 'popularity.desc' | 'popularity.asc' | 'vote_average.desc' | 'vote_average.asc' | 'release_date.desc' | 'release_date.asc' | 'revenue.desc' | 'revenue.asc';
 }
 
+const DEFAULT_FILTERS: FilterState = {
+  genre: null,
+  rating: null,
+  language: null,
+  year: null,
+  sort: 'popularity.desc'
+};
+
 export function useFiltering() {
-  const filters = ref<FilterState>({
-    genre: null,
-    rating: null,
-    language: null,
-    year: null,
-    sort: 'popularity.desc'
-  });
+  const filters = ref<FilterState>({ ...DEFAULT_FILTERS });
 
   const updateFilter = <K extends keyof FilterState>(key: K, value: FilterState[K]) => {
     filters.value[key] = value;
   };
 
   const resetFilters = () => {
-    console.log('Resetting filters...');
-    console.log('Before reset:', { ...filters.value });
-
-    // 필터 상태 초기화
-    filters.value = {
-      genre: null,
-      rating: null,
-      language: null,
-      year: null,
-      sort: 'popularity.desc'
-    };
-
-    console.log('After reset:', { ...filters.value });
-    console.log('Filter params:', getFilterParams.value);
+    filters.value = { ...DEFAULT_FILTERS };
   };
 
   const filterMovies = (movies: Movie[]): Movie[] => {
     return movies.filter(movie => {
-      let passes = true;
-
       // Genre filter
-      if (filters.value.genre !== null) {
-        passes = passes && movie.genre_ids.includes(filters.value.genre);
+      if (filters.value.genre !== null && !movie.genre_ids.includes(filters.value.genre)) {
+        return false;
       }
 
-      // 평점 필터링 로직 수정
+      // Rating filter
       if (filters.value.rating !== null) {
-        const movieRating = movie.vote_average || 0;
-        passes = passes &&
-          movieRating >= filters.value.rating.min &&
-          movieRating < filters.value.rating.max;
+        const rating = movie.vote_average;
+        if (rating < filters.value.rating.min || rating > filters.value.rating.max) {
+          return false;
+        }
       }
 
       // Year filter
       if (filters.value.year !== null) {
-        const movieYear = new Date(movie.release_date).getFullYear();
-        passes = passes && movieYear === filters.value.year;
+        const movieYear = movie.release_date ? new Date(movie.release_date).getFullYear() : null;
+        if (movieYear !== filters.value.year) {
+          return false;
+        }
       }
 
-      // 언어 필터
+      // Language filter
       if (filters.value.language !== null && filters.value.language !== '') {
-        passes = passes && movie.original_language === filters.value.language;
+        if (movie.original_language !== filters.value.language) {
+          return false;
+        }
       }
 
-      return passes;
+      return true;
     });
   };
 
   const sortMovies = (movies: Movie[]): Movie[] => {
-    if (!filters.value.sort) return movies;
-
-    const [sortField, sortOrder] = filters.value.sort.split('.');
-    const multiplier = sortOrder === 'desc' ? -1 : 1;
+    const [field, order] = filters.value.sort.split('.') as [keyof Movie, 'asc' | 'desc'];
+    const multiplier = order === 'desc' ? -1 : 1;
 
     return [...movies].sort((a, b) => {
-      if (sortField === 'popularity') {
-        return ((a.popularity || 0) - (b.popularity || 0)) * multiplier;
-      } else if (sortField === 'vote_average') {
-        return ((a.vote_average || 0) - (b.vote_average || 0)) * multiplier;
-      } else if (sortField === 'release_date') {
-        if (!a.release_date || !b.release_date) return 0;
-        return (new Date(a.release_date).getTime() - new Date(b.release_date).getTime()) * multiplier;
-      } else if (sortField === 'revenue') {// revenue property에 대한 타입 안전성 확보
-        const revenueA = (a as any).revenue ?? 0;  // 타입 단언 사용
-        const revenueB = (b as any).revenue ?? 0;
-        return (revenueA - revenueB) * multiplier;
-      } else {
-        return 0;
+      let valueA: number;
+      let valueB: number;
+
+      switch (field) {
+        case 'popularity':
+          valueA = a.popularity ?? 0;
+          valueB = b.popularity ?? 0;
+          break;
+        case 'vote_average':
+          valueA = a.vote_average ?? 0;
+          valueB = b.vote_average ?? 0;
+          break;
+        case 'release_date':
+          valueA = a.release_date ? new Date(a.release_date).getTime() : 0;
+          valueB = b.release_date ? new Date(b.release_date).getTime() : 0;
+          break;
+        case 'revenue':
+          valueA = a.revenue ?? 0;
+          valueB = b.revenue ?? 0;
+          break;
+        default:
+          return 0;
       }
+
+      return (valueA - valueB) * multiplier;
     });
   };
 
   const getFilterParams = computed(() => {
-    const params: Record<string, any> = {
+    const params: Record<string, string | number> = {
       language: 'ko-KR',
-      sort_by: 'popularity.desc'
+      sort_by: filters.value.sort
     };
 
-    // null 체크 후 값이 있을 때만 파라미터 추가
     if (filters.value.genre !== null) {
       params.with_genres = filters.value.genre;
     }
 
-    // 평점 파라미터 수정
     if (filters.value.rating !== null) {
       params['vote_average.gte'] = filters.value.rating.min;
-      if (filters.value.rating.max < 10) {
-        params['vote_average.lte'] = filters.value.rating.max;
-      }
+      params['vote_average.lte'] = filters.value.rating.max;
     }
 
-    // 언어 필터 파라미터
     if (filters.value.language !== null && filters.value.language !== '') {
       params.with_original_language = filters.value.language;
     }
@@ -133,12 +128,8 @@ export function useFiltering() {
       params.year = filters.value.year;
     }
 
-    if (filters.value.sort !== null && filters.value.sort !== 'popularity.desc') {
-      params.sort_by = filters.value.sort;
-    }
-
     return params;
-});
+  });
 
   return {
     filters,
